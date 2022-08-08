@@ -4,6 +4,7 @@
 #include "Context/Context.h"
 #include "Window/RenderWindow.h"
 #include "Graphics/Graphics.h"
+#include "Runtime/Scene.h"
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
