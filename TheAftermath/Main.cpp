@@ -1,40 +1,26 @@
 #include <Windows.h>
-#include <winnt.h>
 
-#include <winrt/base.h>
-
+#include "Utility/Utility.h"
 #include "Context/Context.h"
 #include "Window/RenderWindow.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    if (WM_DESTROY == message) {
+    if (message == WM_DESTROY) {
         PostQuitMessage(0);
         return 0;
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void RunLoop() {
-    MSG msg = {};
-    while (WM_QUIT != msg.message)
-    {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        else
-        {
+void Draw() {
 
-        }
-    }
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    winrt::init_apartment();
+    TheAftermath::InitContext();
     TheAftermath::RenderWindowDesc windowDesc;
     windowDesc.mHinstance = hInstance;
     windowDesc.mTitle = L"TheAftermath";
@@ -45,10 +31,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     auto window = TheAftermath::CreateRenderWindow(&windowDesc);
     window->Show(nShowCmd);
-    RunLoop();
+
+    TheAftermath::RunLoop(Draw);
 
     TheAftermath::RemoveRenderWindow(window);
-    winrt::clear_factory_cache();
-    winrt::uninit_apartment();
+    TheAftermath::RemoveContext();
     return 0;
 }

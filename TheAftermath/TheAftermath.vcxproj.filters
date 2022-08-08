@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Context">
       <UniqueIdentifier>{2646dab6-bb46-4e58-8fae-1c4d5a393deb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{0c47249a-aa3e-4e69-91fb-3fb0f748dd77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -49,6 +52,9 @@
     </ClInclude>
     <ClInclude Include="Context\Context.h">
       <Filter>Header Files\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Utility.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
