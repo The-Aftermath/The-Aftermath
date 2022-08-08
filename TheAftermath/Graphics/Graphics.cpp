@@ -2,6 +2,7 @@
 
 #include <dxgi1_6.h>
 #include <combaseapi.h>
+#include <tuple>
 
 extern "C"
 {
@@ -29,7 +30,7 @@ namespace TheAftermath {
             D3D12_COMMAND_QUEUE_DESC queueDesc{};
             queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
             pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&pMainQueue));
-            
+
             DXGI_SWAP_CHAIN_DESC1 scDesc{};
             scDesc.BufferCount = 3;
             scDesc.Width = pDesc->mWidth;
@@ -45,7 +46,12 @@ namespace TheAftermath {
             DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc{};
             fsSwapChainDesc.Windowed = TRUE;
             pFactory->CreateSwapChainForHwnd(pMainQueue, pDesc->mHwnd, &scDesc, &fsSwapChainDesc, nullptr, &pSwapChain);
+            pSwapChain->QueryInterface(&m_swapChain);
             pFactory->MakeWindowAssociation(pDesc->mHwnd, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
+
+            pDevice->CreateFence(m_fenceValues[m_backBufferIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&pFence));
+            m_fenceValues[m_backBufferIndex]++; 
+            m_Handle = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
 
             if (debugController) {
                 debugController->Release();
@@ -53,10 +59,23 @@ namespace TheAftermath {
         }
 
         ~AGraphicsDevice() {
+            const UINT64 fenceValue = m_fenceValues[m_backBufferIndex];
+            if (SUCCEEDED(pMainQueue->Signal(pFence, fenceValue)))
+            {
+                if (SUCCEEDED(pFence->SetEventOnCompletion(fenceValue, m_Handle)))
+                {
+                    std::ignore = WaitForSingleObjectEx(m_Handle, INFINITE, FALSE);
+                    m_fenceValues[m_backBufferIndex]++;
+                }
+            }
+
             pMainQueue->Release();
             pDevice->Release();
             pFactory->Release();
             pSwapChain->Release();
+            m_swapChain->Release();
+            pFence->Release();
+            CloseHandle(m_Handle);
         }
 
         ID3D12Device* GetDevice() const {
@@ -64,13 +83,32 @@ namespace TheAftermath {
         }
 
         void Present() {
-            pSwapChain->Present(1, 0);
+            m_swapChain->Present(1, 0);
+
+            const UINT64 currentFenceValue = m_fenceValues[m_backBufferIndex];
+            pMainQueue->Signal(pFence, currentFenceValue);
+
+            m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+            if (pFence->GetCompletedValue() < m_fenceValues[m_backBufferIndex])
+            {
+                pFence->SetEventOnCompletion(m_fenceValues[m_backBufferIndex], m_Handle);
+                std::ignore = WaitForSingleObjectEx(m_Handle, INFINITE, FALSE);
+            }
+
+            m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
         }
 
         ID3D12Device11* pDevice = nullptr;
         IDXGIFactory7* pFactory = nullptr;
         ID3D12CommandQueue* pMainQueue = nullptr;
         IDXGISwapChain1* pSwapChain = nullptr;
+        IDXGISwapChain4* m_swapChain = nullptr;
+        ID3D12Fence1* pFence = nullptr;
+
+        UINT64 m_fenceValues[3]{ 0,0,0 };
+        UINT m_backBufferIndex = 0;
+        HANDLE m_Handle;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc) {
