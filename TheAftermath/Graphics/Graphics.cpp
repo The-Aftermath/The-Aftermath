@@ -108,7 +108,7 @@ namespace TheAftermath {
 
         UINT64 m_fenceValues[3]{ 0,0,0 };
         UINT m_backBufferIndex = 0;
-        HANDLE m_Handle;
+        HANDLE m_Handle = nullptr;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc) {
