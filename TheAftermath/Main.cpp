@@ -41,6 +41,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     windowDesc.mWidth = 800;
     windowDesc.mHeight = 600;
     windowDesc.pFunction = WndProc;
+    windowDesc.pParam = NULL;
 
     auto window = TheAftermath::CreateRenderWindow(&windowDesc);
     window->Show(nShowCmd);

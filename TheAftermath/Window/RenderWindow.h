@@ -10,6 +10,7 @@ namespace TheAftermath {
 		uint32_t mHeight;
 		HINSTANCE mHinstance;
 		WNDPROC pFunction;
+		LPVOID pParam;
 	};
 
 	class RenderWindow {
@@ -20,6 +21,4 @@ namespace TheAftermath {
 
 	RenderWindow* CreateRenderWindow(RenderWindowDesc* pDesc);
 	void RemoveRenderWindow(RenderWindow* pWindow);
-	
-
 }

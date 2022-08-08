@@ -4,9 +4,8 @@ namespace TheAftermath {
 
 	class ARenderWindow : public RenderWindow {
 	public:
-
 		ARenderWindow(RenderWindowDesc* pDesc) {
-			
+			WNDCLASSEXW wcex{};
 			wcex.cbSize = sizeof(WNDCLASSEXW);
 			wcex.style = CS_HREDRAW | CS_VREDRAW;
 		    wcex.lpfnWndProc = pDesc->pFunction;
@@ -23,7 +22,7 @@ namespace TheAftermath {
 			AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 			mHwnd = CreateWindowExW(0, L"TheAftermath", pDesc->mTitle.c_str(), WS_OVERLAPPEDWINDOW,
 				CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance,
-				nullptr);
+				pDesc->pParam);
 		}
 
 		HWND GetHWND() const {
@@ -34,7 +33,6 @@ namespace TheAftermath {
 			::ShowWindow(mHwnd, nCmdShow);
 		}
 
-		WNDCLASSEXW wcex{};
 		HWND mHwnd;
 	};
 
