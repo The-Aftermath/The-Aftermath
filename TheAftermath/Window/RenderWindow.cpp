@@ -17,10 +17,10 @@ namespace TheAftermath {
 			wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
 
 			RegisterClassExW(&wcex);
-
+			auto stype = WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
 			RECT rc = { 0, 0, static_cast<LONG>(pDesc->mWidth), static_cast<LONG>(pDesc->mHeight) };
-			AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-			mHwnd = CreateWindowExW(0, L"TheAftermath", pDesc->mTitle.c_str(), WS_OVERLAPPEDWINDOW,
+			AdjustWindowRect(&rc, stype, FALSE);
+			mHwnd = CreateWindowExW(0, L"TheAftermath", pDesc->mTitle.c_str(), stype,
 				CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance,
 				pDesc->pParam);
 		}
