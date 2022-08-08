@@ -5,6 +5,7 @@
 #include "Window/RenderWindow.h"
 #include "Graphics/Graphics.h"
 
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
         PostQuitMessage(0);
@@ -29,6 +30,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     windowDesc.mHeight = 600;
     windowDesc.pFunction = WndProc;
     windowDesc.pParam = NULL;
+
+    TheAftermath::CreateGraphicsDevice(nullptr);
 
     auto window = TheAftermath::CreateRenderWindow(&windowDesc);
     window->Show(nShowCmd);

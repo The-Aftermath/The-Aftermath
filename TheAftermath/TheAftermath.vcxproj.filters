@@ -45,6 +45,9 @@
     <ClCompile Include="Context\Context.cpp">
       <Filter>Source Files\Context</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window\RenderWindow.h">
