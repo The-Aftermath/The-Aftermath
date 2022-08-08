@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{77fb1932-bbe0-4f95-94e7-1c00b6cc8429}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{9340bdf9-d146-4535-9de8-0c2915ef9aae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
