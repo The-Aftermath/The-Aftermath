@@ -3,6 +3,7 @@
 #include "Utility/Utility.h"
 #include "Context/Context.h"
 #include "Window/RenderWindow.h"
+#include "Graphics/Graphics.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
