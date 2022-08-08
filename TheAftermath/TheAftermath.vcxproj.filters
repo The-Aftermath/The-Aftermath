@@ -40,6 +40,9 @@
     <Filter Include="Source Files\Runtime">
       <UniqueIdentifier>{cb109d8e-ac7f-4259-a521-09d89c4081b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shader">
+      <UniqueIdentifier>{f335ee53-3a78-45de-a1dd-eebbbaa70e27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -77,5 +80,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Runtime\SceneVS.hlsl">
+      <Filter>Resource Files\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
