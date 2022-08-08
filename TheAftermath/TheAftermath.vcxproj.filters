@@ -82,7 +82,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Runtime\SceneVS.hlsl">
+    <FxCompile Include="Shader\SceneVS.hlsl">
       <Filter>Resource Files\Shader</Filter>
     </FxCompile>
   </ItemGroup>
