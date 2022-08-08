@@ -3,6 +3,7 @@
 
 #include <winrt/base.h>
 
+#include "Context/Context.h"
 #include "Window/RenderWindow.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -11,6 +12,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         return 0;
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void RunLoop() {
+    MSG msg = {};
+    while (WM_QUIT != msg.message)
+    {
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else
+        {
+
+        }
+    }
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
@@ -27,19 +44,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     auto window = TheAftermath::CreateRenderWindow(&windowDesc);
     window->Show(nShowCmd);
-    MSG msg = {};
-    while (WM_QUIT != msg.message)
-    {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        else
-        {
-            
-        }
-    }
+    RunLoop();
 
     TheAftermath::RemoveRenderWindow(window);
     winrt::clear_factory_cache();

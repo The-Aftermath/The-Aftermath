@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Window">
       <UniqueIdentifier>{53587616-1694-4686-85eb-ea7c56387505}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Context">
+      <UniqueIdentifier>{d5ebab9c-491e-4328-80aa-7540bc403628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Context">
+      <UniqueIdentifier>{2646dab6-bb46-4e58-8fae-1c4d5a393deb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -33,10 +39,16 @@
     <ClCompile Include="Window\RenderWindow.cpp">
       <Filter>Source Files\Window</Filter>
     </ClCompile>
+    <ClCompile Include="Context\Context.cpp">
+      <Filter>Source Files\Context</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window\RenderWindow.h">
       <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Context\Context.h">
+      <Filter>Header Files\Context</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
