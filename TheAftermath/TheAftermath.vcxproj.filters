@@ -22,10 +22,16 @@
     <Filter Include="Header Files\Window">
       <UniqueIdentifier>{9340bdf9-d146-4535-9de8-0c2915ef9aae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{53587616-1694-4686-85eb-ea7c56387505}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window\RenderWindow.cpp">
+      <Filter>Source Files\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
