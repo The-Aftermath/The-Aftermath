@@ -8,6 +8,8 @@
 #include <system_error>
 #include <vector>
 
+#include <combaseapi.h>
+
 namespace TheAftermath {
 
     inline std::vector<uint8_t> ReadData(_In_z_ const wchar_t* name)
@@ -63,15 +65,20 @@ namespace TheAftermath {
 		AScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
 
-            auto pp = ReadData(L"SceneVS.cso");
+            auto SceneVSBlob = ReadData(L"SceneVS.cso");
+            pDevice->CreateRootSignature(0, SceneVSBlob.data(), SceneVSBlob.size(), IID_PPV_ARGS(&pSceneRoot));
 
 		}
+        ~AScene() {
+            pSceneRoot->Release();
+        }
 
 		void LoadModel(const std::wstring_view view) {
 
 		}
 
 		ID3D12Device* pDevice;
+        ID3D12RootSignature* pSceneRoot;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
