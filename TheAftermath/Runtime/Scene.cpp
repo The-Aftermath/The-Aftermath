@@ -63,6 +63,7 @@ namespace TheAftermath {
 		AScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
 
+            auto pp = ReadData(L"SceneVS.cso");
 
 		}
 
