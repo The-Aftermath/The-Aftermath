@@ -66,6 +66,7 @@ namespace TheAftermath {
 			pDevice = pDesc->pDevice;
 
             auto SceneVSBlob = ReadData(L"SceneVS.cso");
+            auto ScenePSBlob = ReadData(L"ScenePS.cso");
             pDevice->CreateRootSignature(0, SceneVSBlob.data(), SceneVSBlob.size(), IID_PPV_ARGS(&pSceneRoot));
 
 		}

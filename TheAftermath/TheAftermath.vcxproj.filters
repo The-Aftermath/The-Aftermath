@@ -85,5 +85,8 @@
     <FxCompile Include="Shader\SceneVS.hlsl">
       <Filter>Resource Files\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\ScenePS.hlsl">
+      <Filter>Resource Files\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
