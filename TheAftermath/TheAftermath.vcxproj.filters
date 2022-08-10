@@ -60,6 +60,9 @@
     <ClCompile Include="Runtime\Scene.cpp">
       <Filter>Source Files\Runtime</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\AObject.cpp">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window\RenderWindow.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Runtime\Scene.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="Runtime\AObject.h">
       <Filter>Header Files\Runtime</Filter>
     </ClInclude>
   </ItemGroup>

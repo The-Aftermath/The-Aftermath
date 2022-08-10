@@ -67,6 +67,7 @@ namespace TheAftermath {
 		AScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
             pSwapChain = pDesc->pSwapChain;
+            pQueue = pDesc->pQueue;
 
             auto SceneVSBlob = ReadData(L"SceneVS.cso");
             auto ScenePSBlob = ReadData(L"ScenePS.cso");
@@ -104,6 +105,8 @@ namespace TheAftermath {
 
 		ID3D12Device* pDevice;
         IDXGISwapChain* pSwapChain;
+        ID3D12CommandQueue* pQueue;
+
         ID3D12RootSignature* pSceneRoot;
         ID3D12PipelineState* pScenePSO;
 	};

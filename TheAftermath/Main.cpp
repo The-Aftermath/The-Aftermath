@@ -41,6 +41,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     TheAftermath::SceneDesc sceneDesc;
     sceneDesc.pDevice = device->GetDevice();
     sceneDesc.pSwapChain = device->GetSwapChain();
+    sceneDesc.pQueue = device->GetImmediateCommandQueue();
     auto scene = TheAftermath::CreateScene(&sceneDesc);
     window->Show(nShowCmd);
 
