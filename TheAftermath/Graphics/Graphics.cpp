@@ -116,6 +116,11 @@ namespace TheAftermath {
             m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
         }
 
+
+        uint32_t GetFrameIndex() const {
+            return m_swapChain->GetCurrentBackBufferIndex();
+        }
+
         ID3D12Device11* pDevice = nullptr;
         IDXGIFactory7* pFactory = nullptr;
         ID3D12CommandQueue* pMainQueue = nullptr;

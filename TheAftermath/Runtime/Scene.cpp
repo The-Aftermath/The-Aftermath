@@ -92,23 +92,63 @@ namespace TheAftermath {
             psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
             psoDesc.SampleDesc.Count = 1;
             pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
+
+            D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+            rtvHeapDesc.NumDescriptors = 3;
+            rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+            pDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&p_SC_RTVHeap));
+            mRTVDescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            
+            CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart());
+            for (UINT n = 0; n < 3; n++)
+            {
+                ID3D12Resource* _res = nullptr;
+                pDevice->GetSwapChain()->GetBuffer(n, IID_PPV_ARGS(&_res));
+                pDevice->GetDevice()->CreateRenderTargetView(_res, nullptr, rtvHandle);
+                rtvHandle.Offset(1, mRTVDescriptorSize);
+                _res->Release();
+
+                pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
+            }
+            _CreateCmdList();
+            
 		}
         ~AScene() {
             pDevice->Wait();
 
             pSceneRoot->Release();
             pScenePSO->Release();
+            p_SC_RTVHeap->Release();
+
+            pFrameAllocator[0]->Release();
+            pFrameAllocator[1]->Release();
+            pFrameAllocator[2]->Release();
+            pList->Release();
         }
 
         void Update() {
+            
 
             pDevice->Present();
+        }
+
+        void _CreateCmdList() {
+            ID3D12Device11* device;
+            pDevice->GetDevice()->QueryInterface(&device);
+            device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&pList));
+            device->Release();
         }
 
         GraphicsDevice* pDevice;
 
         ID3D12RootSignature* pSceneRoot;
         ID3D12PipelineState* pScenePSO;
+        ID3D12DescriptorHeap* p_SC_RTVHeap;
+        UINT mRTVDescriptorSize;
+
+        ID3D12CommandAllocator* pFrameAllocator[3];
+        ID3D12GraphicsCommandList8* pList;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
