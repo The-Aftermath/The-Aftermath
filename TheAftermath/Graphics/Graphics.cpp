@@ -87,6 +87,17 @@ namespace TheAftermath {
         ID3D12CommandQueue* GetImmediateCommandQueue() const {
             return pMainQueue;
         }
+        void Wait() {
+            const UINT64 fenceValue = m_fenceValues[m_backBufferIndex];
+            if (SUCCEEDED(pMainQueue->Signal(pFence, fenceValue)))
+            {
+                if (SUCCEEDED(pFence->SetEventOnCompletion(fenceValue, m_Handle)))
+                {
+                    std::ignore = WaitForSingleObjectEx(m_Handle, INFINITE, FALSE);
+                    m_fenceValues[m_backBufferIndex]++;
+                }
+            }
+        }
 
         void Present() {
             m_swapChain->Present(1, 0);

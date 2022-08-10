@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClInclude Include="Context\Context.h" />
     <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Runtime\AModel.h" />
     <ClInclude Include="Runtime\AObject.h" />
     <ClInclude Include="Runtime\Scene.h" />
     <ClInclude Include="Utility\Utility.h" />

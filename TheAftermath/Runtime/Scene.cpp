@@ -8,8 +8,9 @@
 #include <system_error>
 #include <vector>
 
+#include <d3d12.h>
+#include <dxgi1_6.h>
 #include <combaseapi.h>
-
 #include "d3dx12.h"
 
 namespace TheAftermath {
@@ -66,12 +67,10 @@ namespace TheAftermath {
 	public:
 		AScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
-            pSwapChain = pDesc->pSwapChain;
-            pQueue = pDesc->pQueue;
 
             auto SceneVSBlob = ReadData(L"SceneVS.cso");
             auto ScenePSBlob = ReadData(L"ScenePS.cso");
-            pDevice->CreateRootSignature(0, SceneVSBlob.data(), SceneVSBlob.size(), IID_PPV_ARGS(&pSceneRoot));
+            pDevice->GetDevice()->CreateRootSignature(0, SceneVSBlob.data(), SceneVSBlob.size(), IID_PPV_ARGS(&pSceneRoot));
 
             D3D12_INPUT_ELEMENT_DESC sceneInputDesc[] =
             {
@@ -92,20 +91,21 @@ namespace TheAftermath {
             psoDesc.NumRenderTargets = 1;
             psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
             psoDesc.SampleDesc.Count = 1;
-            pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
+            pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
 		}
         ~AScene() {
+            pDevice->Wait();
+
             pSceneRoot->Release();
             pScenePSO->Release();
         }
 
-		void LoadModel(const std::wstring_view view) {
+        void Update() {
 
-		}
+            pDevice->Present();
+        }
 
-		ID3D12Device* pDevice;
-        IDXGISwapChain* pSwapChain;
-        ID3D12CommandQueue* pQueue;
+        GraphicsDevice* pDevice;
 
         ID3D12RootSignature* pSceneRoot;
         ID3D12PipelineState* pScenePSO;

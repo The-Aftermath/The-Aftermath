@@ -1,18 +1,14 @@
 #pragma once
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <string_view>
-
+#include "../Graphics/Graphics.h"
+#include "AModel.h"
 namespace TheAftermath {
 	struct SceneDesc {
-		ID3D12Device* pDevice;
-		IDXGISwapChain* pSwapChain;
-		ID3D12CommandQueue* pQueue;
+		GraphicsDevice* pDevice;
 	};
 
 	class Scene {
 	public:
-		virtual void LoadModel(const std::wstring_view view) = 0;
+		virtual void Update() = 0;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc);

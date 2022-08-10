@@ -1,8 +1,9 @@
 #pragma once
 #include <Windows.h>
-#include <cstdint>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <cstdint>
+
 namespace TheAftermath {
     struct GraphicsDeviceDesc {
         HWND mHwnd;
@@ -16,6 +17,7 @@ namespace TheAftermath {
         virtual IDXGISwapChain* GetSwapChain() const = 0;
         virtual ID3D12CommandQueue* GetImmediateCommandQueue() const = 0;
         virtual void Present() = 0;
+        virtual void Wait() = 0;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);

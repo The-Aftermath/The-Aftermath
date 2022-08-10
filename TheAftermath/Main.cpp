@@ -14,8 +14,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Draw(TheAftermath::GraphicsDevice *pDevice) {
-    pDevice->Present();
+void Draw(TheAftermath::Scene *pScene) {
+    pScene->Update();
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
@@ -39,13 +39,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     auto device = TheAftermath::CreateGraphicsDevice(&deviceDesc);
 
     TheAftermath::SceneDesc sceneDesc;
-    sceneDesc.pDevice = device->GetDevice();
-    sceneDesc.pSwapChain = device->GetSwapChain();
-    sceneDesc.pQueue = device->GetImmediateCommandQueue();
+    sceneDesc.pDevice = device;
     auto scene = TheAftermath::CreateScene(&sceneDesc);
+
     window->Show(nShowCmd);
 
-    TheAftermath::RunLoop(Draw, device);
+    TheAftermath::RunLoop(Draw, scene);
 
     TheAftermath::RemoveScene(scene);
     TheAftermath::RemoveGraphicsDevice(device);
