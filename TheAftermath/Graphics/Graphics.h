@@ -14,6 +14,7 @@ namespace TheAftermath {
     public:
         virtual ID3D12Device* GetDevice() const = 0;
         virtual IDXGISwapChain* GetSwapChain() const = 0;
+        virtual ID3D12CommandQueue* GetImmediateCommandQueue() const = 0;
         virtual void Present() = 0;
     };
 

@@ -1,6 +1,5 @@
 #include "Graphics.h"
 
-#include <dxgi1_6.h>
 #include <combaseapi.h>
 #include <tuple>
 
@@ -83,6 +82,10 @@ namespace TheAftermath {
         }
         IDXGISwapChain* GetSwapChain() const {
             return pSwapChain;
+        }
+
+        ID3D12CommandQueue* GetImmediateCommandQueue() const {
+            return pMainQueue;
         }
 
         void Present() {
