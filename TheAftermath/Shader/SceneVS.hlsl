@@ -8,11 +8,11 @@ cbuffer Global : register(b0) {
 	matrix MVP;
 };
 
-#define SceneRoot "RootFlags(0),"\
+#define SceneRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),"\
 "CBV(b0),"\
 "CBV(b1)"
 [RootSignature(SceneRoot)]
-float4 main( float4 pos : POSITION ) : SV_POSITION
+float4 main( float4 position : POSITION,float3 normal : NORMAL,float2 UV0 : TEXCOORD) : SV_POSITION
 {
-	return pos;
+	return position;
 }

@@ -1,9 +1,11 @@
 #pragma once
-#include "d3d12.h"
+#include <d3d12.h>
+#include <dxgi1_6.h>
 #include <string_view>
 namespace TheAftermath {
 	struct SceneDesc {
 		ID3D12Device* pDevice;
+		IDXGISwapChain* pSwapChain;
 	};
 
 	class Scene {

@@ -81,6 +81,9 @@ namespace TheAftermath {
         ID3D12Device* GetDevice() const {
             return pDevice;
         }
+        IDXGISwapChain* GetSwapChain() const {
+            return pSwapChain;
+        }
 
         void Present() {
             m_swapChain->Present(1, 0);

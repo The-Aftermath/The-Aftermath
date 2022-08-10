@@ -66,14 +66,36 @@ namespace TheAftermath {
 	public:
 		AScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
+            pSwapChain = pDesc->pSwapChain;
 
             auto SceneVSBlob = ReadData(L"SceneVS.cso");
             auto ScenePSBlob = ReadData(L"ScenePS.cso");
             pDevice->CreateRootSignature(0, SceneVSBlob.data(), SceneVSBlob.size(), IID_PPV_ARGS(&pSceneRoot));
 
+            D3D12_INPUT_ELEMENT_DESC sceneInputDesc[] =
+            {
+                { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+                { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            };
+
+            D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+            psoDesc.InputLayout = { sceneInputDesc, 3 };
+            psoDesc.pRootSignature = pSceneRoot;
+            psoDesc.VS = { SceneVSBlob.data(), SceneVSBlob.size() };
+            psoDesc.PS = { ScenePSBlob.data(), ScenePSBlob.size() };
+            psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+            psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+            psoDesc.SampleMask = 0xffffffff;
+            psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            psoDesc.NumRenderTargets = 1;
+            psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+            psoDesc.SampleDesc.Count = 1;
+            pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
 		}
         ~AScene() {
             pSceneRoot->Release();
+            pScenePSO->Release();
         }
 
 		void LoadModel(const std::wstring_view view) {
@@ -81,7 +103,9 @@ namespace TheAftermath {
 		}
 
 		ID3D12Device* pDevice;
+        IDXGISwapChain* pSwapChain;
         ID3D12RootSignature* pSceneRoot;
+        ID3D12PipelineState* pScenePSO;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

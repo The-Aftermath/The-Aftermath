@@ -6,7 +6,6 @@
 #include "Graphics/Graphics.h"
 #include "Runtime/Scene.h"
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
         PostQuitMessage(0);
@@ -41,6 +40,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     TheAftermath::SceneDesc sceneDesc;
     sceneDesc.pDevice = device->GetDevice();
+    sceneDesc.pSwapChain = device->GetSwapChain();
     auto scene = TheAftermath::CreateScene(&sceneDesc);
     window->Show(nShowCmd);
 
