@@ -103,11 +103,9 @@ namespace TheAftermath {
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart());
             for (UINT n = 0; n < 3; n++)
             {
-                ID3D12Resource* _res = nullptr;
-                pDevice->GetSwapChain()->GetBuffer(n, IID_PPV_ARGS(&_res));
+                ID3D12Resource* _res = pDevice->GetResource(n);
                 pDevice->GetDevice()->CreateRenderTargetView(_res, nullptr, rtvHandle);
                 rtvHandle.Offset(1, mRTVDescriptorSize);
-                _res->Release();
 
                 pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
             }
@@ -128,8 +126,21 @@ namespace TheAftermath {
         }
 
         void Update() {
-            
+            auto frameIndex = pDevice->GetFrameIndex();
+            pFrameAllocator[frameIndex]->Reset();
+            pList->Reset(pFrameAllocator[frameIndex], pScenePSO);
+            auto renderTarget = pDevice->GetResource(frameIndex);
 
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            pList->ResourceBarrier(1, &barrier);
+
+
+            barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+            pList->ResourceBarrier(1, &barrier);
+            pList->Close();
+          
+            ID3D12CommandList *pLists[] = { pList };
+            pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, pLists);
             pDevice->Present();
         }
 
