@@ -8,7 +8,9 @@ cbuffer Global : register(b0) {
 	matrix MVP;
 };
 
-#define SceneRoot "RootFlags(0)"
+#define SceneRoot "RootFlags(0),"\
+"CBV(b0),"\
+"CBV(b1)"
 [RootSignature(SceneRoot)]
 float4 main( float4 pos : POSITION ) : SV_POSITION
 {

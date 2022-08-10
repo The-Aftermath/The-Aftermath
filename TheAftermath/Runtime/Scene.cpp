@@ -10,6 +10,8 @@
 
 #include <combaseapi.h>
 
+#include "d3dx12.h"
+
 namespace TheAftermath {
 
     inline std::vector<uint8_t> ReadData(_In_z_ const wchar_t* name)
