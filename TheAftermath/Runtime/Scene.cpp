@@ -110,6 +110,7 @@ namespace TheAftermath {
                 pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
             }
             _CreateCmdList();
+            _GetScreenSize();
             
 		}
         ~AScene() {
@@ -131,9 +132,19 @@ namespace TheAftermath {
             pList->Reset(pFrameAllocator[frameIndex], pScenePSO);
             auto renderTarget = pDevice->GetResource(frameIndex);
 
+            pList->SetGraphicsRootSignature(pSceneRoot);
+            CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
+            pList->RSSetViewports(1, &viewport);
+            CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
+            pList->RSSetScissorRects(1, &scissorRect);
+
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
             pList->ResourceBarrier(1, &barrier);
-
+          
+            CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, mRTVDescriptorSize);
+            pList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+            const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+            pList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
             barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
             pList->ResourceBarrier(1, &barrier);
@@ -151,6 +162,13 @@ namespace TheAftermath {
             device->Release();
         }
 
+        void _GetScreenSize() {
+            DXGI_SWAP_CHAIN_DESC desc{};
+            pDevice->GetSwapChain()->GetDesc(&desc);
+            mWidth = desc.BufferDesc.Width;
+            mHeight = desc.BufferDesc.Height;
+        }
+
         GraphicsDevice* pDevice;
 
         ID3D12RootSignature* pSceneRoot;
@@ -160,6 +178,9 @@ namespace TheAftermath {
 
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
+
+        UINT mWidth;
+        UINT mHeight;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
