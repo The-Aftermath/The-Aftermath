@@ -1,6 +1,6 @@
 #pragma once
 #include "../Graphics/Graphics.h"
-#include "AModel.h"
+
 namespace TheAftermath {
 	struct SceneDesc {
 		GraphicsDevice* pDevice;

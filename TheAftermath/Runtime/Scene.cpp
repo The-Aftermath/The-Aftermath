@@ -111,8 +111,8 @@ namespace TheAftermath {
             }
             _CreateCmdList();
             _GetScreenSize();
-            
 		}
+
         ~AScene() {
             pDevice->Wait();
 

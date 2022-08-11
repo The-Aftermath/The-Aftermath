@@ -12,7 +12,7 @@ cbuffer Global : register(b0) {
 "CBV(b0),"\
 "CBV(b1)"
 [RootSignature(SceneRoot)]
-float4 main( float4 position : POSITION,float3 normal : NORMAL,float2 UV0 : TEXCOORD) : SV_POSITION
+float4 main(float4 position : POSITION, float3 normal : NORMAL, float2 UV0 : TEXCOORD) : SV_POSITION
 {
 	return position;
 }
