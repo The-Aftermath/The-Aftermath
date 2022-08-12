@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "../Utility/Json.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -153,6 +154,12 @@ namespace TheAftermath {
             ID3D12CommandList *pLists[] = { pList };
             pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, pLists);
             pDevice->Present();
+        }
+
+        void LoadStaticModel(const wchar_t* path) {
+            JsonNode node;
+            node.Parse(L"{}");
+            node.InsertAt();
         }
 
         void _CreateCmdList() {
