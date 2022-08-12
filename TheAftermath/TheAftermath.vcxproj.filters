@@ -43,6 +43,9 @@
     <Filter Include="Resource Files\Shader">
       <UniqueIdentifier>{f335ee53-3a78-45de-a1dd-eebbbaa70e27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{a4fd9eef-d66d-447f-ae84-3442617e1c57}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -80,9 +83,15 @@
     <ClInclude Include="Utility\Json.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Math\SimpleMath.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Math\SimpleMath.inl">
+      <Filter>Header Files\Math</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\SceneVS.hlsl">

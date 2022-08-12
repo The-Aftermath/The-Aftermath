@@ -88,12 +88,14 @@
   <ItemGroup>
     <ClInclude Include="Context\Context.h" />
     <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Math\SimpleMath.h" />
     <ClInclude Include="Runtime\Scene.h" />
     <ClInclude Include="Utility\Json.h" />
     <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="Window\RenderWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Math\SimpleMath.inl" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
