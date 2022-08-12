@@ -157,9 +157,7 @@ namespace TheAftermath {
         }
 
         void LoadStaticModel(const wchar_t* path) {
-            JsonNode node;
-            node.Parse(L"{}");
-            node.InsertAt();
+
         }
 
         void _CreateCmdList() {
