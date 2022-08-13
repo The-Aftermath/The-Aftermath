@@ -1,6 +1,6 @@
 #pragma once
 #include "../Graphics/Graphics.h"
-
+#include "../Math/SimpleMath.h"
 namespace TheAftermath {
 	struct SceneDesc {
 		GraphicsDevice* pDevice;
@@ -9,7 +9,7 @@ namespace TheAftermath {
 	class Scene {
 	public:
 		virtual void Update() = 0;
-		virtual void LoadStaticModel(const wchar_t* path) = 0;
+		virtual void LoadStaticModel(const wchar_t* path,const DirectX::SimpleMath::Matrix &model) = 0;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc);

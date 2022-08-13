@@ -9,6 +9,8 @@
 #include <system_error>
 #include <vector>
 
+#include <string>
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <combaseapi.h>
@@ -112,6 +114,12 @@ namespace TheAftermath {
             }
             _CreateCmdList();
             _GetScreenSize();
+
+            D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+            cbvHeapDesc.NumDescriptors = 1;
+            cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            pDevice->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&pCbvHeap));
 		}
 
         ~AScene() {
@@ -125,6 +133,8 @@ namespace TheAftermath {
             pFrameAllocator[1]->Release();
             pFrameAllocator[2]->Release();
             pList->Release();
+
+            pCbvHeap->Release();
         }
 
         void Update() {
@@ -156,7 +166,11 @@ namespace TheAftermath {
             pDevice->Present();
         }
 
-        void LoadStaticModel(const wchar_t* path) {
+        void LoadStaticModel(const wchar_t* path, const DirectX::SimpleMath::Matrix& model) {
+            mStaticModel.emplace_back(path, model);
+        }
+
+        void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
 
         }
 
@@ -184,8 +198,24 @@ namespace TheAftermath {
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
 
+        ID3D12DescriptorHeap* pCbvHeap;
+
         UINT mWidth;
         UINT mHeight;
+
+        struct StaticModel {
+            std::wstring path;
+            DirectX::SimpleMath::Matrix modelMatrix;
+        };
+
+        struct SceneConstantBuffer
+        {
+            DirectX::SimpleMath::Vector4 light;
+            float padding[60]; // Padding so the constant buffer is 256-byte aligned.
+        };
+        static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+
+        std::vector<StaticModel> mStaticModel;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
