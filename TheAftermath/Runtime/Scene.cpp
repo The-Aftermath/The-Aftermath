@@ -165,6 +165,11 @@ namespace TheAftermath {
             auto renderTarget = pDevice->GetResource(frameIndex);
 
             pList->SetGraphicsRootSignature(pSceneRoot);
+
+            ID3D12DescriptorHeap* ppHeaps[] = { pCbvHeap };
+            pList->SetDescriptorHeaps(1, ppHeaps);
+            pList->SetGraphicsRootConstantBufferView(0, pConstantBuffer->GetGPUVirtualAddress());
+
             CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
             pList->RSSetViewports(1, &viewport);
             CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
@@ -219,7 +224,6 @@ namespace TheAftermath {
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
 
-        ID3D12DescriptorHeap* pCbvHeap;
 
         UINT mWidth;
         UINT mHeight;
@@ -240,6 +244,8 @@ namespace TheAftermath {
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
         SceneConstantBuffer sceneCB;
 
+
+        ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;
         UINT8* pCbvDataBegin;
 	};
