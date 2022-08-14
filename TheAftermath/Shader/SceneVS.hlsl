@@ -4,8 +4,9 @@ struct VertexOutput {
 	float2 UV0: TEXCOORD;
 };
 
-cbuffer Global : register(b0) {
+cbuffer SceneCB : register(b0) {
 	matrix MVP;
+	float4 Light;
 };
 
 #define SceneRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),"\

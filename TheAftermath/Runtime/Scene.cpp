@@ -120,7 +120,26 @@ namespace TheAftermath {
             cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
             cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             pDevice->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&pCbvHeap));
-		}
+
+            UINT BUFFERSIZE = sizeof(SceneConstantBuffer);
+            auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+            auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(BUFFERSIZE);
+            pDevice->GetDevice()->CreateCommittedResource(
+                &heapProp,
+                D3D12_HEAP_FLAG_NONE,
+                &resDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&pConstantBuffer));
+
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+            cbvDesc.BufferLocation = pConstantBuffer->GetGPUVirtualAddress();
+            cbvDesc.SizeInBytes = BUFFERSIZE;
+            pDevice->GetDevice()->CreateConstantBufferView(&cbvDesc, pCbvHeap->GetCPUDescriptorHandleForHeapStart());
+            
+            CD3DX12_RANGE readRange(0, 0);
+            pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
+        }
 
         ~AScene() {
             pDevice->Wait();
@@ -135,6 +154,8 @@ namespace TheAftermath {
             pList->Release();
 
             pCbvHeap->Release();
+            pConstantBuffer->Unmap(0, nullptr);
+            pConstantBuffer->Release();
         }
 
         void Update() {
@@ -171,7 +192,7 @@ namespace TheAftermath {
         }
 
         void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
-
+            sceneCB.light = light;
         }
 
         void _CreateCmdList() {
@@ -208,14 +229,19 @@ namespace TheAftermath {
             DirectX::SimpleMath::Matrix modelMatrix;
         };
 
+        std::vector<StaticModel> mStaticModel;
+
         struct SceneConstantBuffer
         {
+            DirectX::SimpleMath::Matrix mvp;
             DirectX::SimpleMath::Vector4 light;
-            float padding[60]; // Padding so the constant buffer is 256-byte aligned.
+            float padding[44]; // Padding so the constant buffer is 256-byte aligned.
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+        SceneConstantBuffer sceneCB;
 
-        std::vector<StaticModel> mStaticModel;
+        ID3D12Resource* pConstantBuffer;
+        UINT8* pCbvDataBegin;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
