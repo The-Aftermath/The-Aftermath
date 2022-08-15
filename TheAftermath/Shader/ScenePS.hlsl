@@ -1,5 +1,6 @@
 
-cbuffer SkyLight : register(b1) {
+cbuffer SceneCB : register(b0) {
+	matrix MVP;
 	float4 Light;
 };
 
