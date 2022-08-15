@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <string>
+#include <cstring>
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -194,10 +195,12 @@ namespace TheAftermath {
 
         void LoadStaticModel(const wchar_t* path, const DirectX::SimpleMath::Matrix& model) {
             mStaticModel.emplace_back(path, model);
+            //todo gpu res
         }
 
         void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
             sceneCB.light = light;
+            memcpy(pCbvDataBegin, &sceneCB, sizeof(sceneCB));
         }
 
         void _CreateCmdList() {
@@ -224,7 +227,6 @@ namespace TheAftermath {
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
 
-
         UINT mWidth;
         UINT mHeight;
 
@@ -243,7 +245,6 @@ namespace TheAftermath {
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
         SceneConstantBuffer sceneCB;
-
 
         ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;

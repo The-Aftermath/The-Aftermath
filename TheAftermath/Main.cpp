@@ -17,6 +17,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
+    const DirectX::SimpleMath::Vector4 light(1.f, 1.f, 1.f, 1.f);
+    pScene->SetSkyLight(light);
     pScene->Update();
 }
 
