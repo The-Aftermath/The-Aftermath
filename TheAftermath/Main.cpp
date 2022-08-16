@@ -18,10 +18,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
-    //const DirectX::SimpleMath::Vector4 light(1.f, 1.f, 1.f, 1.f);
-    //pScene->SetSkyLight(light);
-    //TheAftermath::Camera c(1.f, 1.f);
-
     pScene->Update();
 }
 
@@ -47,6 +43,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     TheAftermath::SceneDesc sceneDesc;
     sceneDesc.pDevice = device;
+    sceneDesc.mLight = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
     auto scene = TheAftermath::CreateScene(&sceneDesc);
 
     window->Show(nShowCmd);

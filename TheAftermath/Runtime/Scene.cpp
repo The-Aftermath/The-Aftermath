@@ -142,7 +142,7 @@ namespace TheAftermath {
             CD3DX12_RANGE readRange(0, 0);
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
-            sceneCB->light = DirectX::XMFLOAT4(1, 1, 1, 1);
+            sceneCB->light = pDesc->mLight;
             camera = Camera(
                 0.f, 0.f, 0.f,
                 0.f, 0.f, 1.f,
@@ -201,10 +201,6 @@ namespace TheAftermath {
             ID3D12CommandList *pLists[] = { pList };
             pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, pLists);
             pDevice->Present();
-        }
-
-        void SetSkyLight(const DirectX::XMFLOAT4& light) {
-            sceneCB->light = light;
         }
 
         void _CreateCmdList() {
