@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "Camera.h"
 #include "../Utility/Json.h"
 
 #include <cstddef>
@@ -142,8 +143,13 @@ namespace TheAftermath {
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
             sceneCB->light = DirectX::XMFLOAT4(1, 1, 1, 1);
-            //sceneCB->mvp = DirectX::SimpleMath::Matrix::CreateLookAt(DirectX::SimpleMath::Vector3(0, 0, 0), DirectX::SimpleMath::Vector3(0, 0, 1), DirectX::SimpleMath::Vector3(0, 1, 0))
-            // * DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PIDIV4, (float)mWidth / (float)mHeight, 0.1f, 1000.f);
+            TheAftermath::Camera camera(
+                0.f, 0.f, 0.f,
+                0.f, 0.f, 1.f,
+                0.f, 1.f, 0.f,
+                0.785398163f, (float)mWidth / (float)mHeight, 0.1f, 1000.f
+            );
+            sceneCB->mvp = camera.GetVP();
         }
 
         ~AScene() {

@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClInclude Include="Context\Context.h" />
     <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Runtime\Camera.h" />
     <ClInclude Include="Runtime\Scene.h" />
     <ClInclude Include="Utility\Json.h" />
     <ClInclude Include="Utility\Utility.h" />
