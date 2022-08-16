@@ -143,13 +143,13 @@ namespace TheAftermath {
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
             sceneCB->light = pDesc->mLight;
-            camera = Camera(
+            pCamera = new Camera(
                 0.f, 0.f, 0.f,
                 0.f, 0.f, 1.f,
                 0.f, 1.f, 0.f,
                 0.785398163f, (float)mWidth / (float)mHeight, 0.1f, 1000.f
             );
-            sceneCB->mvp = camera.GetVP();
+            sceneCB->mvp = pCamera->GetVP();
         }
 
         ~AScene() {
@@ -167,6 +167,14 @@ namespace TheAftermath {
             pCbvHeap->Release();
             pConstantBuffer->Unmap(0, nullptr);
             pConstantBuffer->Release();
+
+            delete pCamera;
+        }
+
+        void LoadStaticModel(const wchar_t* path) {
+            //JsonObject::Parse()
+            std::wfstream fs(path);
+            
         }
 
         void Update() {
@@ -243,7 +251,7 @@ namespace TheAftermath {
         ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;
 
-        Camera camera;
+        Camera *pCamera;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

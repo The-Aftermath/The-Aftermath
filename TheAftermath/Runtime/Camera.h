@@ -4,26 +4,6 @@
 namespace TheAftermath {
 	class Camera {
 	public:
-		Camera() {
-			DirectX::XMVECTOR position;
-			position.m128_f32[0] = 0.f;
-			position.m128_f32[1] = 0.f;
-			position.m128_f32[2] = 0.f;
-			position.m128_f32[3] = 1.f;
-			DirectX::XMVECTOR focus;
-			focus.m128_f32[0] = 0.f;
-			focus.m128_f32[1] = 0.f;
-			focus.m128_f32[2] = 1.f;
-			focus.m128_f32[3] = 1.f;
-			DirectX::XMVECTOR up;
-			up.m128_f32[0] = 0.f;
-			up.m128_f32[1] = 1.f;
-			up.m128_f32[2] = 0.f;
-			up.m128_f32[3] = 1.f;
-
-			_v = DirectX::XMMatrixLookAtLH(position, focus, up);
-			_p = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, 1.f, 0.1f, 1000.f);
-		}
 		Camera(
 			float PositionX, float PositionY, float PositionZ,
 			float FocusX, float FocusY, float FocusZ,
