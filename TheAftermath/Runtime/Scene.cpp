@@ -140,6 +140,9 @@ namespace TheAftermath {
             
             CD3DX12_RANGE readRange(0, 0);
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
+            sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
+            sceneCB->mvp = DirectX::SimpleMath::Matrix();
+            sceneCB->light = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
         }
 
         ~AScene() {
@@ -199,8 +202,10 @@ namespace TheAftermath {
         }
 
         void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
-            sceneCB.light = light;
-            memcpy(pCbvDataBegin, &sceneCB, sizeof(sceneCB));
+            sceneCB->light = light;
+        }
+        void SetMVP(const DirectX::SimpleMath::Matrix& mvp) {
+            sceneCB->mvp = mvp;
         }
 
         void _CreateCmdList() {
@@ -244,11 +249,11 @@ namespace TheAftermath {
             float padding[44]; // Padding so the constant buffer is 256-byte aligned.
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
-        SceneConstantBuffer sceneCB;
+        SceneConstantBuffer *sceneCB;
+        UINT8* pCbvDataBegin;
 
         ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;
-        UINT8* pCbvDataBegin;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {
