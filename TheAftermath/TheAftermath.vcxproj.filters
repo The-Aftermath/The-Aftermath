@@ -83,15 +83,9 @@
     <ClInclude Include="Utility\Json.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Math\SimpleMath.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Math\SimpleMath.inl">
-      <Filter>Header Files\Math</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\SceneVS.hlsl">

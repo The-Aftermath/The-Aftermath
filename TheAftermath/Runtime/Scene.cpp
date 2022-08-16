@@ -141,8 +141,9 @@ namespace TheAftermath {
             CD3DX12_RANGE readRange(0, 0);
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
-            sceneCB->mvp = DirectX::SimpleMath::Matrix();
-            sceneCB->light = DirectX::SimpleMath::Vector4(1, 1, 1, 1);
+            sceneCB->light = DirectX::XMFLOAT4(1, 1, 1, 1);
+            //sceneCB->mvp = DirectX::SimpleMath::Matrix::CreateLookAt(DirectX::SimpleMath::Vector3(0, 0, 0), DirectX::SimpleMath::Vector3(0, 0, 1), DirectX::SimpleMath::Vector3(0, 1, 0))
+            // * DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PIDIV4, (float)mWidth / (float)mHeight, 0.1f, 1000.f);
         }
 
         ~AScene() {
@@ -196,17 +197,24 @@ namespace TheAftermath {
             pDevice->Present();
         }
 
-        void LoadStaticModel(const wchar_t* path, const DirectX::SimpleMath::Matrix& model) {
-            mStaticModel.emplace_back(path, model);
-            //todo gpu res
-        }
-
-        void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
+        void SetSkyLight(const DirectX::XMFLOAT4& light) {
             sceneCB->light = light;
         }
-        void SetMVP(const DirectX::SimpleMath::Matrix& mvp) {
+
+        void SetMVP(const DirectX::XMFLOAT4X4& mvp) {
             sceneCB->mvp = mvp;
         }
+        //void LoadStaticModel(const wchar_t* path, const DirectX::SimpleMath::Matrix& model) {
+        //    mStaticModel.emplace_back(path, model);
+        //    //todo gpu res
+        //}
+
+        //void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
+        //    sceneCB->light = light;
+        //}
+        //void SetMVP(const DirectX::SimpleMath::Matrix& mvp) {
+        //    sceneCB->mvp = mvp;
+        //}
 
         void _CreateCmdList() {
             ID3D12Device11* device;
@@ -235,17 +243,10 @@ namespace TheAftermath {
         UINT mWidth;
         UINT mHeight;
 
-        struct StaticModel {
-            std::wstring path;
-            DirectX::SimpleMath::Matrix modelMatrix;
-        };
-
-        std::vector<StaticModel> mStaticModel;
-
         struct SceneConstantBuffer
         {
-            DirectX::SimpleMath::Matrix mvp;
-            DirectX::SimpleMath::Vector4 light;
+            DirectX::XMFLOAT4X4 mvp;
+            DirectX::XMFLOAT4 light;
             float padding[44]; // Padding so the constant buffer is 256-byte aligned.
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");

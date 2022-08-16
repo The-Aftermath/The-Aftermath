@@ -6,7 +6,7 @@
 #include "Window/RenderWindow.h"
 #include "Graphics/Graphics.h"
 #include "Runtime/Scene.h"
-#include "Math/SimpleMath.h"
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
@@ -17,8 +17,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
-    const DirectX::SimpleMath::Vector4 light(1.f, 1.f, 1.f, 1.f);
-    pScene->SetSkyLight(light);
+    //const DirectX::SimpleMath::Vector4 light(1.f, 1.f, 1.f, 1.f);
+    //pScene->SetSkyLight(light);
     pScene->Update();
 }
 
