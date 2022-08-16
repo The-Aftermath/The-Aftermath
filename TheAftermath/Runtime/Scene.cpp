@@ -143,7 +143,7 @@ namespace TheAftermath {
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
             sceneCB->light = DirectX::XMFLOAT4(1, 1, 1, 1);
-            TheAftermath::Camera camera(
+            camera = Camera(
                 0.f, 0.f, 0.f,
                 0.f, 0.f, 1.f,
                 0.f, 1.f, 0.f,
@@ -207,21 +207,6 @@ namespace TheAftermath {
             sceneCB->light = light;
         }
 
-        void SetMVP(const DirectX::XMFLOAT4X4& mvp) {
-            sceneCB->mvp = mvp;
-        }
-        //void LoadStaticModel(const wchar_t* path, const DirectX::SimpleMath::Matrix& model) {
-        //    mStaticModel.emplace_back(path, model);
-        //    //todo gpu res
-        //}
-
-        //void SetSkyLight(const DirectX::SimpleMath::Vector4& light) {
-        //    sceneCB->light = light;
-        //}
-        //void SetMVP(const DirectX::SimpleMath::Matrix& mvp) {
-        //    sceneCB->mvp = mvp;
-        //}
-
         void _CreateCmdList() {
             ID3D12Device11* device;
             pDevice->GetDevice()->QueryInterface(&device);
@@ -261,6 +246,8 @@ namespace TheAftermath {
 
         ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;
+
+        Camera camera;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

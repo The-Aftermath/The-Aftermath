@@ -17,11 +17,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Draw(TheAftermath::Scene *pScene, TheAftermath::Camera *pCamera) {
+void Draw(TheAftermath::Scene *pScene) {
     //const DirectX::SimpleMath::Vector4 light(1.f, 1.f, 1.f, 1.f);
     //pScene->SetSkyLight(light);
     //TheAftermath::Camera c(1.f, 1.f);
-    pScene->SetMVP(pCamera->GetVP());
+
     pScene->Update();
 }
 
@@ -49,15 +49,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     sceneDesc.pDevice = device;
     auto scene = TheAftermath::CreateScene(&sceneDesc);
 
-    TheAftermath::Camera camera(
-        0.f, 0.f, 0.f,
-        0.f, 0.f, 1.f,
-        0.f, 1.f, 0.f,
-        0.785398163f, 800.f / 600.f, 0.1f, 1000.f
-    );
-
     window->Show(nShowCmd);
-    TheAftermath::RunLoop(Draw, scene, &camera);
+    TheAftermath::RunLoop(Draw, scene);
 
     TheAftermath::RemoveScene(scene);
     TheAftermath::RemoveGraphicsDevice(device);
