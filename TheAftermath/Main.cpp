@@ -18,6 +18,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
+    pScene->LoadStaticModel(L"Model/Box");
     pScene->Update();
 }
 

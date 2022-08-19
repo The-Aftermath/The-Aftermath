@@ -12,6 +12,7 @@
 
 #include <string>
 #include <cstring>
+#include <filesystem>
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -172,9 +173,17 @@ namespace TheAftermath {
         }
 
         void LoadStaticModel(const wchar_t* path) {
-            //JsonObject::Parse()
-            std::wfstream fs(path);
-            
+            std::filesystem::path modelParentPath{ path };
+            auto modelJson = modelParentPath.stem();
+            modelJson += ".json";
+            auto jsonPath = modelParentPath / modelJson;
+
+
+            auto file_size = std::filesystem::file_size(jsonPath);
+            std::wifstream fs(jsonPath);
+            wchar_t* jsonStr = new wchar_t[file_size + 1]{};
+            fs.read(jsonStr, file_size);
+
         }
 
         void Update() {
