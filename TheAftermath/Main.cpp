@@ -18,7 +18,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
-    pScene->LoadStaticModel(L"Model/Box");
     pScene->Update();
 }
 
@@ -46,6 +45,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     sceneDesc.pDevice = device;
     sceneDesc.mLight = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
     auto scene = TheAftermath::CreateScene(&sceneDesc);
+
+
+    scene->LoadStaticModel(L"Model/Box");
 
     window->Show(nShowCmd);
     TheAftermath::RunLoop(Draw, scene);

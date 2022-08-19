@@ -118,11 +118,11 @@ namespace TheAftermath {
             _CreateCmdList();
             _GetScreenSize();
 
-            D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-            cbvHeapDesc.NumDescriptors = 1;
-            cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            pDevice->GetDevice()->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&pCbvHeap));
+            D3D12_DESCRIPTOR_HEAP_DESC sceneHeapDesc = {};
+            sceneHeapDesc.NumDescriptors = 1;
+            sceneHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            sceneHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            pDevice->GetDevice()->CreateDescriptorHeap(&sceneHeapDesc, IID_PPV_ARGS(&pSceneHeapPool));
 
             UINT BUFFERSIZE = sizeof(SceneConstantBuffer);
             auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -138,7 +138,7 @@ namespace TheAftermath {
             D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
             cbvDesc.BufferLocation = pConstantBuffer->GetGPUVirtualAddress();
             cbvDesc.SizeInBytes = BUFFERSIZE;
-            pDevice->GetDevice()->CreateConstantBufferView(&cbvDesc, pCbvHeap->GetCPUDescriptorHandleForHeapStart());
+            pDevice->GetDevice()->CreateConstantBufferView(&cbvDesc, pSceneHeapPool->GetCPUDescriptorHandleForHeapStart());
             
             CD3DX12_RANGE readRange(0, 0);
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
@@ -165,7 +165,7 @@ namespace TheAftermath {
             pFrameAllocator[2]->Release();
             pList->Release();
 
-            pCbvHeap->Release();
+            pSceneHeapPool->Release();
             pConstantBuffer->Unmap(0, nullptr);
             pConstantBuffer->Release();
 
@@ -177,7 +177,6 @@ namespace TheAftermath {
             auto modelJson = modelParentPath.stem();
             modelJson += ".json";
             auto jsonPath = modelParentPath / modelJson;
-
 
             auto file_size = std::filesystem::file_size(jsonPath);
             std::wifstream fs(jsonPath);
@@ -194,7 +193,7 @@ namespace TheAftermath {
 
             pList->SetGraphicsRootSignature(pSceneRoot);
 
-            ID3D12DescriptorHeap* ppHeaps[] = { pCbvHeap };
+            ID3D12DescriptorHeap* ppHeaps[] = { pSceneHeapPool };
             pList->SetDescriptorHeaps(1, ppHeaps);
             pList->SetGraphicsRootConstantBufferView(0, pConstantBuffer->GetGPUVirtualAddress());
 
@@ -257,8 +256,9 @@ namespace TheAftermath {
         SceneConstantBuffer *sceneCB;
         UINT8* pCbvDataBegin;
 
-        ID3D12DescriptorHeap* pCbvHeap;
         ID3D12Resource* pConstantBuffer;
+
+        ID3D12DescriptorHeap* pSceneHeapPool;
 
         Camera *pCamera;
 	};
