@@ -46,6 +46,9 @@
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{a4fd9eef-d66d-447f-ae84-3442617e1c57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{904057d0-0e5c-4b1c-ae08-1e9da3eded38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="Runtime\Scene.cpp">
       <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Json.cpp">
+      <Filter>Source Files\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

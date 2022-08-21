@@ -3,106 +3,51 @@
 #include <winrt/windows.foundation.collections.h>
 #include <winrt/windows.data.json.h>
 #include <string>
+#include <type_traits>
+#include <cstddef>
 #include <cstdint>
+
 namespace TheAftermath {
 
 	class JsonValue {
 	public:
-		JsonValue() : mValue(nullptr) {}
-		JsonValue(const winrt::Windows::Data::Json::JsonValue& value) : mValue(value) {}
-		JsonValue(const JsonValue&) = default;
-		JsonValue(JsonValue&& r) noexcept : mValue(r.mValue) {
-			r.mValue = winrt::Windows::Data::Json::JsonValue(nullptr);
-		}
-
-		JsonValue& operator=(const JsonValue&) = default;
-		JsonValue& operator=(JsonValue&& r) noexcept {
-			if (this != &r) {
-				mValue = r.mValue;
-				r.mValue = winrt::Windows::Data::Json::JsonValue(nullptr);
-			}
-
-			return *this;
-		}
-
-		~JsonValue() {}
-
-		auto GetValue() const {
-			return mValue;
-		}
-
-		bool Parse(const std::wstring& input) {
-			return winrt::Windows::Data::Json::JsonValue::TryParse(input, mValue);
-		}
-
-		static auto CreateBooleanValue(bool input) {
-			return JsonValue(winrt::Windows::Data::Json::JsonValue::CreateBooleanValue(input));
-		}
-		static auto CreateNumberValue(double input) {
-			return JsonValue(winrt::Windows::Data::Json::JsonValue::CreateNumberValue(input));
-		}
-		static auto CreateStringValue(const std::wstring& input) {
-			return JsonValue(winrt::Windows::Data::Json::JsonValue::CreateStringValue(input));
-		}
-		static auto CreateNullValue() {
-			return JsonValue(winrt::Windows::Data::Json::JsonValue::CreateNullValue());
-		}
-
-		auto GetBoolean() const {
-			return mValue.GetBoolean();
-		}
-		auto GetString() const {
-			std::wstring temp{ mValue.GetString() };
-			return temp;
-		}
-		auto GetNumber() const {
-			return mValue.GetNumber();
-		}
-		auto GetArray() const {
-			return mValue.GetArray();
-		}
-		auto GetObjectW() const {
-			return mValue.GetObjectW();
-		}
+		JsonValue(std::nullptr_t) : mValue(nullptr) {}
+		template<typename T>
+			requires std::is_arithmetic_v<T>
+		JsonValue(T t) : mValue(winrt::Windows::Data::Json::JsonValue::Parse(std::to_wstring(t))) {}
+		JsonValue(const std::wstring& input) : mValue(winrt::Windows::Data::Json::JsonValue::CreateStringValue(input)) {}
+		JsonValue(bool boolean) : mValue(winrt::Windows::Data::Json::JsonValue::CreateBooleanValue(boolean)) {}
 
 	private:
 		winrt::Windows::Data::Json::JsonValue mValue;
 	};
 
+	class JsonObject;
+
 	class JsonArray {
 	public:
 		JsonArray() {}
-		JsonArray(const JsonArray&) = default;
-		JsonArray(JsonArray&& r) noexcept {
-			mArray = r.mArray;
-			r.mArray.Clear();
+		JsonArray(const std::wstring& input) {
+			mArray = winrt::Windows::Data::Json::JsonArray::Parse(input);
 		}
 
-		JsonArray& operator=(const JsonArray&) = default;
-		JsonArray& operator=(JsonArray&& r) noexcept {
-			if (this != &r) {
-				mArray = r.mArray;
-				r.mArray.Clear();
-			}
-
-			return *this;
+		double GetNumberAt(uint32_t i) const {
+			return mArray.GetNumberAt(i);
+		}
+		bool GetBooleanAt(uint32_t i) const {
+			return mArray.GetBooleanAt(i);
 		}
 
-		~JsonArray() {}
-
-		bool Parse(const std::wstring& input) {
-			return winrt::Windows::Data::Json::JsonArray::TryParse(input, mArray);
+		std::wstring GetStringAt(uint32_t i) const {
+			auto str = mArray.GetStringAt(i);
+			return std::wstring{ str };
 		}
 
-		void InsertAt(uint32_t index, const JsonValue &value) {
-			mArray.InsertAt(index, value.GetValue());
+		JsonObject GetObjectAt(uint32_t i) const;
+		JsonArray GetArrayAt(uint32_t i) const {
+			auto arr = mArray.GetArrayAt(i);
+			return JsonArray(std::wstring{ arr.Stringify() });
 		}
-
-		std::wstring Stringify() {
-			std::wstring temp_str{ mArray.Stringify() };
-			return temp_str;
-		}
-
 	private:
 		winrt::Windows::Data::Json::JsonArray mArray;
 	};
@@ -110,35 +55,29 @@ namespace TheAftermath {
 	class JsonObject {
 	public:
 		JsonObject() {}
-		JsonObject(const JsonObject&) = default;
-		JsonObject(JsonObject&& r) noexcept {
-			mObject = r.mObject;
-			r.mObject.Clear();
+		JsonObject(const std::wstring& input) {
+			mObject = winrt::Windows::Data::Json::JsonObject::Parse(input);
 		}
 
-		JsonObject& operator=(const JsonObject&) = default;
-		JsonObject& operator=(JsonObject&& r) noexcept {
-			if (this != &r) {
-				mObject = r.mObject;
-				r.mObject.Clear();
-			}
-
-			return *this;
+		JsonObject GetNamedObject(const std::wstring& name) const {
+			auto obj = mObject.GetNamedObject(name);
+			return JsonObject(std::wstring{ obj.Stringify() });
+		}
+		std::wstring GetNamedString(const std::wstring& name) const {
+			auto str = mObject.GetNamedString(name);
+			return std::wstring{ str };
+		}
+		JsonArray GetNamedArray(const std::wstring& name) const {
+			auto arr = mObject.GetNamedArray(name);
+			return JsonArray(std::wstring{ arr.Stringify() });
 		}
 
-		~JsonObject() {}
-
-		bool Parse(const std::wstring& input) {
-			return winrt::Windows::Data::Json::JsonObject::TryParse(input, mObject);
+		bool GetNamedBoolean(const std::wstring& name) const {
+			return mObject.GetNamedBoolean(name);
 		}
 
-		void Insert(const std::wstring &key, const JsonValue& value) {
-			mObject.Insert(key, value.GetValue());
-		}
-
-		std::wstring Stringify() {
-			std::wstring temp_str{ mObject.Stringify() };
-			return temp_str;
+		double GetNamedNumber(const std::wstring& name) const {
+			return mObject.GetNamedNumber(name);
 		}
 
 	private:

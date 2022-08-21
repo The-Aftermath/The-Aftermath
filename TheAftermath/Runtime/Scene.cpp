@@ -69,10 +69,12 @@ namespace TheAftermath {
         return blob;
     }
 
-	class AScene : public Scene {
-	public:
-		AScene(SceneDesc* pDesc) {
-			pDevice = pDesc->pDevice;
+
+
+    class AScene : public Scene {
+    public:
+        AScene(SceneDesc* pDesc) {
+            pDevice = pDesc->pDevice;
 
             auto SceneVSBlob = ReadData(L"SceneVS.cso");
             auto ScenePSBlob = ReadData(L"ScenePS.cso");
@@ -104,8 +106,10 @@ namespace TheAftermath {
             rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
             rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
             pDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&p_SC_RTVHeap));
+
             mRTVDescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-            
+            mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart());
             for (UINT n = 0; n < 3; n++)
             {
@@ -119,7 +123,7 @@ namespace TheAftermath {
             _GetScreenSize();
 
             D3D12_DESCRIPTOR_HEAP_DESC sceneHeapDesc = {};
-            sceneHeapDesc.NumDescriptors = 1;
+            sceneHeapDesc.NumDescriptors = 1000;
             sceneHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
             sceneHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             pDevice->GetDevice()->CreateDescriptorHeap(&sceneHeapDesc, IID_PPV_ARGS(&pSceneHeapPool));
@@ -139,7 +143,7 @@ namespace TheAftermath {
             cbvDesc.BufferLocation = pConstantBuffer->GetGPUVirtualAddress();
             cbvDesc.SizeInBytes = BUFFERSIZE;
             pDevice->GetDevice()->CreateConstantBufferView(&cbvDesc, pSceneHeapPool->GetCPUDescriptorHandleForHeapStart());
-            
+
             CD3DX12_RANGE readRange(0, 0);
             pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pCbvDataBegin));
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
@@ -151,6 +155,9 @@ namespace TheAftermath {
                 0.785398163f, (float)mWidth / (float)mHeight, 0.1f, 1000.f
             );
             sceneCB->mvp = pCamera->GetVP();
+
+            mTextureDescriptorHandle = pSceneHeapPool->GetCPUDescriptorHandleForHeapStart();
+            mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
         }
 
         ~AScene() {
@@ -174,15 +181,43 @@ namespace TheAftermath {
 
         void LoadStaticModel(const wchar_t* path) {
             std::filesystem::path modelParentPath{ path };
-            auto modelJson = modelParentPath.stem();
-            modelJson += ".json";
-            auto jsonPath = modelParentPath / modelJson;
+            winrt::Windows::Data::Json::JsonValue mValue(nullptr);
+            JsonValue v(false);
+            auto modelStem = modelParentPath.stem();
+            auto modelJson = modelStem;
+            modelJson.concat(".json");
+            auto modelJsonPath = modelParentPath / modelJson;
 
-            auto file_size = std::filesystem::file_size(jsonPath);
-            std::wifstream fs(jsonPath);
-            wchar_t* jsonStr = new wchar_t[file_size + 1]{};
-            fs.read(jsonStr, file_size);
+            auto model_Json_file_size = std::filesystem::file_size(modelJsonPath);
+            std::wifstream model_Json_fs(modelJsonPath);
+            wchar_t* jsonStr = new wchar_t[model_Json_file_size + 1] {};
+            model_Json_fs.read(jsonStr, model_Json_file_size);
 
+            auto modelBin = modelStem;
+            modelBin.concat(".bin");
+            auto modelBinPath = modelParentPath / modelBin;
+
+            auto model_Bin_file_size = std::filesystem::file_size(modelBinPath);
+            std::wifstream model_Bin_fs(modelBinPath);
+            wchar_t* binStr = new wchar_t[model_Bin_file_size + 1] {};
+            model_Bin_fs.read(binStr, model_Bin_file_size);
+
+            JsonObject jsonObj(jsonStr);
+
+            auto meshCountStr = jsonObj.GetNamedString(L"MeshCount");
+            auto meshCount = std::stoi(meshCountStr);
+
+            JsonArray meshAttributes = jsonObj.GetNamedArray(L"MeshAttributes");
+
+            for (int meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
+                auto meshData = meshAttributes.GetObjectAt(meshIndex);
+
+                auto vertexOffsetStr = meshData.GetNamedString(L"VertexOffset");
+                auto vertexOffset = std::stoi(vertexOffsetStr);
+
+            }
+            delete[]jsonStr;
+            delete[]binStr;
         }
 
         void Update() {
@@ -204,7 +239,7 @@ namespace TheAftermath {
 
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
             pList->ResourceBarrier(1, &barrier);
-          
+
             CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, mRTVDescriptorSize);
             pList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
             const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
@@ -213,8 +248,8 @@ namespace TheAftermath {
             barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
             pList->ResourceBarrier(1, &barrier);
             pList->Close();
-          
-            ID3D12CommandList *pLists[] = { pList };
+
+            ID3D12CommandList* pLists[] = { pList };
             pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, pLists);
             pDevice->Present();
         }
@@ -239,6 +274,7 @@ namespace TheAftermath {
         ID3D12PipelineState* pScenePSO;
         ID3D12DescriptorHeap* p_SC_RTVHeap;
         UINT mRTVDescriptorSize;
+        UINT mCBV_SRV_UVADescriptorSize;
 
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
@@ -253,21 +289,23 @@ namespace TheAftermath {
             float padding[44]; // Padding so the constant buffer is 256-byte aligned.
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
-        SceneConstantBuffer *sceneCB;
+        SceneConstantBuffer* sceneCB;
         UINT8* pCbvDataBegin;
 
         ID3D12Resource* pConstantBuffer;
 
+        CD3DX12_CPU_DESCRIPTOR_HANDLE mTextureDescriptorHandle;
+
         ID3D12DescriptorHeap* pSceneHeapPool;
 
-        Camera *pCamera;
-	};
+        Camera* pCamera;
+    };
 
-	Scene* CreateScene(SceneDesc* pDesc) {
-		return new AScene(pDesc);
-	}
-	void RemoveScene(Scene* pScene) {
-		auto temp_ptr = dynamic_cast<AScene*>(pScene);
-		delete temp_ptr;
-	}
+    Scene* CreateScene(SceneDesc* pDesc) {
+        return new AScene(pDesc);
+    }
+    void RemoveScene(Scene* pScene) {
+        auto temp_ptr = dynamic_cast<AScene*>(pScene);
+        delete temp_ptr;
+    }
 }
