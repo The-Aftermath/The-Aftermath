@@ -131,7 +131,8 @@ namespace TheAftermath {
             _GetScreenSize();
 
             D3D12_DESCRIPTOR_HEAP_DESC sceneHeapDesc = {};
-            sceneHeapDesc.NumDescriptors = 1000;
+            // 250 model
+            sceneHeapDesc.NumDescriptors = 1001;
             sceneHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
             sceneHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
             pDevice->GetDevice()->CreateDescriptorHeap(&sceneHeapDesc, IID_PPV_ARGS(&pSceneHeapPool));
@@ -157,7 +158,7 @@ namespace TheAftermath {
             sceneCB = (SceneConstantBuffer*)pCbvDataBegin;
             sceneCB->light = pDesc->mLight;
             pCamera = new Camera(
-                0.f, 0.f, 0.f,
+                0.f, 7.75f, -10.f,
                 0.f, 0.f, 1.f,
                 0.f, 1.f, 0.f,
                 0.785398163f, (float)mWidth / (float)mHeight, 0.1f, 1000.f
@@ -313,6 +314,45 @@ namespace TheAftermath {
                 }
             }
 
+            auto vertexResDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(SceneVertex) * mSceneVertex.size());
+            auto vertexHeapDesc = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+            pDevice->GetDevice()->CreateCommittedResource(
+                &vertexHeapDesc,
+                D3D12_HEAP_FLAG_NONE,
+                &vertexResDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&pVertexRes));
+
+            UINT8* pVertexDataBegin;
+            CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
+            pVertexRes->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+            memcpy(pVertexDataBegin, mSceneVertex.data(), sizeof(SceneVertex)* mSceneVertex.size());
+            pVertexRes->Unmap(0, nullptr);
+            
+            m_vertexBufferView.BufferLocation = pVertexRes->GetGPUVirtualAddress();
+            m_vertexBufferView.StrideInBytes = sizeof(SceneVertex);
+            m_vertexBufferView.SizeInBytes = sizeof(SceneVertex) * mSceneVertex.size();
+
+            auto indexResDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(uint32_t) * mSceneIndex.size());
+            pDevice->GetDevice()->CreateCommittedResource(
+                &vertexHeapDesc,
+                D3D12_HEAP_FLAG_NONE,
+                &indexResDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&pIndexRes));
+
+            UINT8* pindexDataBegin;
+            pIndexRes->Map(0, nullptr, reinterpret_cast<void**>(&pindexDataBegin));
+            memcpy(pindexDataBegin, mSceneIndex.data(), sizeof(uint32_t)* mSceneIndex.size());
+            pIndexRes->Unmap(0, nullptr);
+
+            m_indexBufferView.BufferLocation = pIndexRes->GetGPUVirtualAddress();
+            m_indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+            m_indexBufferView.SizeInBytes = sizeof(uint32_t) * mSceneIndex.size();
+
             delete[]jsonStr;
             delete[]binStr;
         }
@@ -328,7 +368,7 @@ namespace TheAftermath {
             ID3D12DescriptorHeap* ppHeaps[] = { pSceneHeapPool };
             pList->SetDescriptorHeaps(1, ppHeaps);
             pList->SetGraphicsRootConstantBufferView(0, pConstantBuffer->GetGPUVirtualAddress());
-
+            
             CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
             pList->RSSetViewports(1, &viewport);
             CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
@@ -342,6 +382,11 @@ namespace TheAftermath {
             const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
             pList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
+            pList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            pList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+            pList->IASetIndexBuffer(&m_indexBufferView);
+            auto numIndices = mSceneIndex.size();
+            pList->DrawIndexedInstanced(numIndices, 1, 0, 0, 0);
             barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
             pList->ResourceBarrier(1, &barrier);
             pList->Close();
@@ -401,6 +446,10 @@ namespace TheAftermath {
         std::vector<SceneVertex> mSceneVertex;
         std::vector<uint32_t> mSceneIndex;
         std::vector<ID3D12Resource*> mTexture;
+        ID3D12Resource* pVertexRes = nullptr;
+        ID3D12Resource* pIndexRes = nullptr;
+        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView{};
+        D3D12_INDEX_BUFFER_VIEW m_indexBufferView{};
     };
 
     Scene* CreateScene(SceneDesc* pDesc) {

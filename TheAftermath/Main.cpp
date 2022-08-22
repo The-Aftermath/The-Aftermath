@@ -43,7 +43,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     TheAftermath::SceneDesc sceneDesc;
     sceneDesc.pDevice = device;
-    sceneDesc.mLight = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+    sceneDesc.mLight = DirectX::XMFLOAT4(1.f, 0.f, 1.f, 1.f);
     auto scene = TheAftermath::CreateScene(&sceneDesc);
 
 
