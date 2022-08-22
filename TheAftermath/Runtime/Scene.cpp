@@ -69,7 +69,12 @@ namespace TheAftermath {
         return blob;
     }
 
-
+    struct SceneVertex {
+        float Position[4];
+        float Normal[3];
+        float UV0[2];
+        uint32_t ID;
+    };
 
     class AScene : public Scene {
     public:
@@ -84,11 +89,12 @@ namespace TheAftermath {
             {
                 { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
                 { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+                { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+                { "VERTEX_ID", 0, DXGI_FORMAT_R32_UINT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
             };
 
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-            psoDesc.InputLayout = { sceneInputDesc, 3 };
+            psoDesc.InputLayout = { sceneInputDesc, 4 };
             psoDesc.pRootSignature = pSceneRoot;
             psoDesc.VS = { SceneVSBlob.data(), SceneVSBlob.size() };
             psoDesc.PS = { ScenePSBlob.data(), ScenePSBlob.size() };
@@ -198,24 +204,64 @@ namespace TheAftermath {
             auto modelBinPath = modelParentPath / modelBin;
 
             auto model_Bin_file_size = std::filesystem::file_size(modelBinPath);
-            std::wifstream model_Bin_fs(modelBinPath);
-            wchar_t* binStr = new wchar_t[model_Bin_file_size + 1] {};
+            std::ifstream model_Bin_fs(modelBinPath);
+            char* binStr = new char[model_Bin_file_size + 1] {};
             model_Bin_fs.read(binStr, model_Bin_file_size);
 
             JsonObject jsonObj(jsonStr);
 
-            auto meshCountStr = jsonObj.GetNamedString(L"MeshCount");
-            auto meshCount = std::stoi(meshCountStr);
+            const auto meshCountStr = jsonObj.GetNamedString(L"MeshCount");
+            const auto meshCount = std::stoi(meshCountStr);
 
             JsonArray meshAttributes = jsonObj.GetNamedArray(L"MeshAttributes");
 
             for (int meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
-                auto meshData = meshAttributes.GetObjectAt(meshIndex);
+                const auto meshData = meshAttributes.GetObjectAt(meshIndex);
 
-                auto vertexOffsetStr = meshData.GetNamedString(L"VertexOffset");
-                auto vertexOffset = std::stoi(vertexOffsetStr);
+                const auto vertexOffsetStr = meshData.GetNamedString(L"VertexOffset");
+                const auto vertexOffset = std::stoi(vertexOffsetStr);
+
+                const auto vertexCountStr = meshData.GetNamedString(L"VertexCount");
+                const auto vertexCount = std::stoi(vertexCountStr);
+
+                // This is BakeModel vertex size 
+                constexpr int bake_model_vertex_size = sizeof(float) * 8;
+                auto offset = vertexOffset;
+                for (int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex) {
+                    SceneVertex _vertex;
+                    float* vertex_buffer = reinterpret_cast<float*>(&binStr[offset]);
+                    _vertex.Position[0] = vertex_buffer[0];
+                    _vertex.Position[1] = vertex_buffer[1];
+                    _vertex.Position[2] = vertex_buffer[2];
+                    _vertex.Position[3] = 1.f;
+                    _vertex.Normal[0] = vertex_buffer[3];
+                    _vertex.Normal[1] = vertex_buffer[4];
+                    _vertex.Normal[2] = vertex_buffer[5];
+                    _vertex.UV0[0] = vertex_buffer[6];
+                    _vertex.UV0[1] = vertex_buffer[7];
+                    _vertex.ID = mVertex_id;
+                    mSceneVertex.push_back(_vertex);
+                    offset += bake_model_vertex_size;
+                }
+
+                ++mVertex_id;
+
+                const auto indexOffsetStr = meshData.GetNamedString(L"IndexOffset");
+                const auto indexOffset = std::stoi(indexOffsetStr);
+
+                const auto indexCountStr = meshData.GetNamedString(L"IndexCount");
+                const auto indexCount = std::stoi(indexCountStr);
+
+                const auto indexLastSize = mSceneIndex.size();
+                uint32_t* index_buffer = reinterpret_cast<uint32_t*>(&binStr[offset]);
+                for (int indexIndex = 0; indexIndex < indexCount; ++indexIndex) {
+                    mSceneIndex.push_back(index_buffer[indexIndex] + indexLastSize);
+                }
+
+                // picture
 
             }
+
             delete[]jsonStr;
             delete[]binStr;
         }
@@ -299,6 +345,10 @@ namespace TheAftermath {
         ID3D12DescriptorHeap* pSceneHeapPool;
 
         Camera* pCamera;
+
+        uint32_t mVertex_id = 0;
+        std::vector<SceneVertex> mSceneVertex;
+        std::vector<uint32_t> mSceneIndex;
     };
 
     Scene* CreateScene(SceneDesc* pDesc) {
