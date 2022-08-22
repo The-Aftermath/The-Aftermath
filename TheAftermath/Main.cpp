@@ -48,7 +48,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 
     scene->LoadStaticModel(L"Model/Box");
-
     window->Show(nShowCmd);
     TheAftermath::RunLoop(Draw, scene);
 

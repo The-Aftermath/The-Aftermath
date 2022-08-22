@@ -1,6 +1,8 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "../Utility/Json.h"
+#include "../TextureLoader/WICTextureLoader12.h"
+#include "../TextureLoader/DDSTextureLoader12.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -181,6 +183,9 @@ namespace TheAftermath {
             pSceneHeapPool->Release();
             pConstantBuffer->Unmap(0, nullptr);
             pConstantBuffer->Release();
+            for (auto x : mTexture) {
+                x->Release();
+            }
 
             delete pCamera;
         }
@@ -259,7 +264,53 @@ namespace TheAftermath {
                 }
 
                 // picture
+                const auto baseColorTexture = meshData.GetNamedString(L"BaseColorTexture");
+                const auto baseColorfs = modelParentPath / baseColorTexture;
+                const auto baseColorStr = baseColorfs.wstring();
 
+                std::unique_ptr<uint8_t[]> decodedData;
+                D3D12_SUBRESOURCE_DATA subresource;
+                ID3D12Resource* pBaseColorRes;
+                DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), baseColorStr.c_str(), &pBaseColorRes, decodedData, subresource);
+                pDevice->GetDevice()->CreateShaderResourceView(pBaseColorRes, nullptr, mTextureDescriptorHandle);
+                mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                mTexture.push_back(pBaseColorRes);
+
+                {
+                    const auto metallicRoughnessTexture = meshData.GetNamedString(L"MetallicRoughnessTexture");
+                    const auto metallicRoughnessfs = modelParentPath / metallicRoughnessTexture;
+                    const auto metallicRoughnessStr = metallicRoughnessfs.wstring();
+
+                    ID3D12Resource* pMetallicRoughnessRes;
+                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), metallicRoughnessStr.c_str(), &pMetallicRoughnessRes, decodedData, subresource);
+                    pDevice->GetDevice()->CreateShaderResourceView(pMetallicRoughnessRes, nullptr, mTextureDescriptorHandle);
+                    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                    mTexture.push_back(pMetallicRoughnessRes);
+                }
+
+                {
+                    const auto normalTexture = meshData.GetNamedString(L"NormalTexture");
+                    const auto normalfs = modelParentPath / normalTexture;
+                    const auto mnormalStr = normalfs.wstring();
+
+                    ID3D12Resource* pNormalRes;
+                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), mnormalStr.c_str(), &pNormalRes, decodedData, subresource);
+                    pDevice->GetDevice()->CreateShaderResourceView(pNormalRes, nullptr, mTextureDescriptorHandle);
+                    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                    mTexture.push_back(pNormalRes);
+                }
+
+                {
+                    const auto aoTexture = meshData.GetNamedString(L"AOTexture");
+                    const auto aofs = modelParentPath / aoTexture;
+                    const auto aoStr = aofs.wstring();
+
+                    ID3D12Resource* pAORes;
+                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), aoStr.c_str(), &pAORes, decodedData, subresource);
+                    pDevice->GetDevice()->CreateShaderResourceView(pAORes, nullptr, mTextureDescriptorHandle);
+                    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                    mTexture.push_back(pAORes);
+                }
             }
 
             delete[]jsonStr;
@@ -332,7 +383,7 @@ namespace TheAftermath {
         {
             DirectX::XMFLOAT4X4 mvp;
             DirectX::XMFLOAT4 light;
-            float padding[44]; // Padding so the constant buffer is 256-byte aligned.
+            float padding[44];
         };
         static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
         SceneConstantBuffer* sceneCB;
@@ -349,6 +400,7 @@ namespace TheAftermath {
         uint32_t mVertex_id = 0;
         std::vector<SceneVertex> mSceneVertex;
         std::vector<uint32_t> mSceneIndex;
+        std::vector<ID3D12Resource*> mTexture;
     };
 
     Scene* CreateScene(SceneDesc* pDesc) {
