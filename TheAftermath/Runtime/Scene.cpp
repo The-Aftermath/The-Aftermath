@@ -127,6 +127,8 @@ namespace TheAftermath {
 
                 pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
             }
+
+            pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCopyAlloc));
             _CreateCmdList();
             _GetScreenSize();
 
@@ -263,55 +265,99 @@ namespace TheAftermath {
                 for (int indexIndex = 0; indexIndex < indexCount; ++indexIndex) {
                     mSceneIndex.push_back(index_buffer[indexIndex] + indexLastSize);
                 }
-
-                // picture
-                const auto baseColorTexture = meshData.GetNamedString(L"BaseColorTexture");
-                const auto baseColorfs = modelParentPath / baseColorTexture;
-                const auto baseColorStr = baseColorfs.wstring();
-
-                std::unique_ptr<uint8_t[]> decodedData;
-                D3D12_SUBRESOURCE_DATA subresource;
-                ID3D12Resource* pBaseColorRes;
-                DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), baseColorStr.c_str(), &pBaseColorRes, decodedData, subresource);
-                pDevice->GetDevice()->CreateShaderResourceView(pBaseColorRes, nullptr, mTextureDescriptorHandle);
-                mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
-                mTexture.push_back(pBaseColorRes);
-
                 {
-                    const auto metallicRoughnessTexture = meshData.GetNamedString(L"MetallicRoughnessTexture");
-                    const auto metallicRoughnessfs = modelParentPath / metallicRoughnessTexture;
-                    const auto metallicRoughnessStr = metallicRoughnessfs.wstring();
+    
+                    pCopyAlloc->Reset();
+                    pCopyList->Reset(pCopyAlloc, nullptr);
 
-                    ID3D12Resource* pMetallicRoughnessRes;
-                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), metallicRoughnessStr.c_str(), &pMetallicRoughnessRes, decodedData, subresource);
-                    pDevice->GetDevice()->CreateShaderResourceView(pMetallicRoughnessRes, nullptr, mTextureDescriptorHandle);
+                    const auto baseColorTexture = meshData.GetNamedString(L"BaseColorTexture");
+                    const auto baseColorfs = modelParentPath / baseColorTexture;
+                    const auto baseColorStr = baseColorfs.wstring();
+
+                    std::unique_ptr<uint8_t[]> decodedData;
+                    D3D12_SUBRESOURCE_DATA subresource;
+                    ID3D12Resource* pBaseColorRes;
+                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), baseColorStr.c_str(), &pBaseColorRes, decodedData, subresource);
+
+                    const UINT64 uploadBufferSize = GetRequiredIntermediateSize(pBaseColorRes, 0, 1);
+                    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+                    auto desc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+
+                    // Create the GPU upload buffer.
+                    ID3D12Resource* uploadRes;
+
+                    pDevice->GetDevice()->CreateCommittedResource(
+                        &heapProps,
+                        D3D12_HEAP_FLAG_NONE,
+                        &desc,
+                        D3D12_RESOURCE_STATE_GENERIC_READ,
+                        nullptr,
+                        IID_PPV_ARGS(&uploadRes));
+
+                    UpdateSubresources(pCopyList, pBaseColorRes, uploadRes,
+                        0, 0, 1, &subresource);
+
+                    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(pBaseColorRes,
+                        D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                    pCopyList->ResourceBarrier(1, &barrier);
+                    pCopyList->Close();
+                    ID3D12CommandList* pLists[] = { pCopyList };
+                    pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, pLists);
+                    pDevice->Wait();
+                    uploadRes->Release();
+
+                    pDevice->GetDevice()->CreateShaderResourceView(pBaseColorRes, nullptr, mTextureDescriptorHandle);
                     mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
-                    mTexture.push_back(pMetallicRoughnessRes);
+                    mTexture.push_back(pBaseColorRes);
                 }
 
-                {
-                    const auto normalTexture = meshData.GetNamedString(L"NormalTexture");
-                    const auto normalfs = modelParentPath / normalTexture;
-                    const auto mnormalStr = normalfs.wstring();
+                //{
+                //    // picture
+                //    pCopyAlloc->Reset();
+                //    pCopyList->Reset(pCopyAlloc, nullptr);
+                //    std::unique_ptr<uint8_t[]> decodedData;
+                //    D3D12_SUBRESOURCE_DATA subresource;
+                //    const auto metallicRoughnessTexture = meshData.GetNamedString(L"MetallicRoughnessTexture");
+                //    const auto metallicRoughnessfs = modelParentPath / metallicRoughnessTexture;
+                //    const auto metallicRoughnessStr = metallicRoughnessfs.wstring();
 
-                    ID3D12Resource* pNormalRes;
-                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), mnormalStr.c_str(), &pNormalRes, decodedData, subresource);
-                    pDevice->GetDevice()->CreateShaderResourceView(pNormalRes, nullptr, mTextureDescriptorHandle);
-                    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
-                    mTexture.push_back(pNormalRes);
-                }
+                //    ID3D12Resource* pMetallicRoughnessRes;
+                //    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), metallicRoughnessStr.c_str(), &pMetallicRoughnessRes, decodedData, subresource);
 
-                {
-                    const auto aoTexture = meshData.GetNamedString(L"AOTexture");
-                    const auto aofs = modelParentPath / aoTexture;
-                    const auto aoStr = aofs.wstring();
 
-                    ID3D12Resource* pAORes;
-                    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), aoStr.c_str(), &pAORes, decodedData, subresource);
-                    pDevice->GetDevice()->CreateShaderResourceView(pAORes, nullptr, mTextureDescriptorHandle);
-                    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
-                    mTexture.push_back(pAORes);
-                }
+                //    pDevice->GetDevice()->CreateShaderResourceView(pMetallicRoughnessRes, nullptr, mTextureDescriptorHandle);
+                //    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                //    mTexture.push_back(pMetallicRoughnessRes);
+                //}
+
+                //{
+                //    std::unique_ptr<uint8_t[]> decodedData;
+                //    D3D12_SUBRESOURCE_DATA subresource;
+                //    const auto normalTexture = meshData.GetNamedString(L"NormalTexture");
+                //    const auto normalfs = modelParentPath / normalTexture;
+                //    const auto mnormalStr = normalfs.wstring();
+
+                //    ID3D12Resource* pNormalRes;
+                //    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), mnormalStr.c_str(), &pNormalRes, decodedData, subresource);
+                //    pDevice->GetDevice()->CreateShaderResourceView(pNormalRes, nullptr, mTextureDescriptorHandle);
+                //    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                //    mTexture.push_back(pNormalRes);
+                //}
+
+                //{
+                //    std::unique_ptr<uint8_t[]> decodedData;
+                //    D3D12_SUBRESOURCE_DATA subresource;
+                //    const auto aoTexture = meshData.GetNamedString(L"AOTexture");
+                //    const auto aofs = modelParentPath / aoTexture;
+                //    const auto aoStr = aofs.wstring();
+
+                //    ID3D12Resource* pAORes;
+                //    DirectX::LoadWICTextureFromFile(pDevice->GetDevice(), aoStr.c_str(), &pAORes, decodedData, subresource);
+                //    pDevice->GetDevice()->CreateShaderResourceView(pAORes, nullptr, mTextureDescriptorHandle);
+                //    mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+                //    mTexture.push_back(pAORes);
+                //}
+
             }
 
             auto vertexResDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(SceneVertex) * mSceneVertex.size());
@@ -368,7 +414,9 @@ namespace TheAftermath {
             ID3D12DescriptorHeap* ppHeaps[] = { pSceneHeapPool };
             pList->SetDescriptorHeaps(1, ppHeaps);
             pList->SetGraphicsRootConstantBufferView(0, pConstantBuffer->GetGPUVirtualAddress());
-            
+            CD3DX12_GPU_DESCRIPTOR_HANDLE table(pSceneHeapPool->GetGPUDescriptorHandleForHeapStart());
+            table.Offset(1, mCBV_SRV_UVADescriptorSize);
+            pList->SetGraphicsRootDescriptorTable(1, table);
             CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
             pList->RSSetViewports(1, &viewport);
             CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
@@ -400,6 +448,7 @@ namespace TheAftermath {
             ID3D12Device11* device;
             pDevice->GetDevice()->QueryInterface(&device);
             device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&pList));
+            device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&pCopyList));
             device->Release();
         }
 
@@ -450,6 +499,9 @@ namespace TheAftermath {
         ID3D12Resource* pIndexRes = nullptr;
         D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView{};
         D3D12_INDEX_BUFFER_VIEW m_indexBufferView{};
+
+        ID3D12CommandAllocator* pCopyAlloc;
+        ID3D12GraphicsCommandList* pCopyList;
     };
 
     Scene* CreateScene(SceneDesc* pDesc) {
