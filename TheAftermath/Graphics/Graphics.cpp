@@ -1,5 +1,9 @@
 #include "Graphics.h"
 
+#include "RenderTargetState.h"
+
+#include "d3dx12.h"
+
 #include <combaseapi.h>
 #include <tuple>
 
@@ -55,6 +59,8 @@ namespace TheAftermath {
             if (debugController) {
                 debugController->Release();
             }
+            mWidth = pDesc->mWidth;
+            mHeight = pDesc->mHeight;
         }
 
         ~AGraphicsDevice() {
@@ -120,6 +126,13 @@ namespace TheAftermath {
             return m_swapChain->GetCurrentBackBufferIndex();
         }
 
+        virtual uint32_t GetViewportWidth() const {
+            return mWidth;
+        }
+        virtual uint32_t GetViewportHeight() const {
+            return mHeight;
+        }
+
         ID3D12Device11* pDevice = nullptr;
         IDXGIFactory7* pFactory = nullptr;
         ID3D12CommandQueue* pMainQueue = nullptr;
@@ -130,6 +143,9 @@ namespace TheAftermath {
         UINT64 m_fenceValues[3]{ 0,0,0 };
         UINT m_backBufferIndex = 0;
         HANDLE m_Handle = nullptr;
+
+        uint32_t mWidth;
+        uint32_t mHeight;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc) {
@@ -138,6 +154,42 @@ namespace TheAftermath {
 
     void RemoveGraphicsDevice(GraphicsDevice* pDevice) {
         auto temp_ptr = dynamic_cast<AGraphicsDevice*>(pDevice);
+        delete temp_ptr;
+    }
+
+
+    class AGBuffer : public GBuffer {
+    public:
+        AGBuffer(GBufferDesc* pDesc) {
+            pDevice = pDesc->pDevice;
+
+            auto baseResDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, pDesc->mWidth, pDesc->mHeight);
+            auto baseHeapDesc = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+            pDevice->GetDevice()->CreateCommittedResource(
+                &baseHeapDesc,
+                D3D12_HEAP_FLAG_NONE,
+                &baseResDesc,
+                D3D12_RESOURCE_STATE_COMMON,
+                nullptr,
+                IID_PPV_ARGS(&pBaseColor));
+        }
+        ~AGBuffer() {
+            pBaseColor->Release();
+        }
+
+        ID3D12Resource* GetBaseColorResource() const {
+            return pBaseColor;
+        }
+
+        GraphicsDevice* pDevice;
+        ID3D12Resource* pBaseColor;
+    };
+
+    GBuffer* CreateGBuffer(GBufferDesc* pDesc) {
+        return new AGBuffer(pDesc);
+    }
+    void RemoveGBuffer(GBuffer* pBuffer) {
+        auto temp_ptr = dynamic_cast<AGBuffer*>(pBuffer);
         delete temp_ptr;
     }
 

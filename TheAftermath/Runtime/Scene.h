@@ -1,18 +1,15 @@
-//#pragma once
-//#include "../Graphics/Graphics.h"
-//#include <DirectXMath.h>
-//namespace TheAftermath {
-//	struct SceneDesc {
-//		GraphicsDevice* pDevice;
-//		DirectX::XMFLOAT4 mLight;
-//	};
-//
-//	class Scene {
-//	public:
-//		virtual void Update() = 0;
-//		virtual void LoadStaticModel(const wchar_t* path) = 0;
-//	};
-//
-//	Scene* CreateScene(SceneDesc* pDesc);
-//	void RemoveScene(Scene * pScene);
-//}
+#pragma once
+#include "../Graphics/Graphics.h"
+namespace TheAftermath {
+	struct SceneDesc {
+		GraphicsDevice* pDevice;
+	};
+
+	class Scene {
+	public:
+		virtual void Update() = 0;
+	};
+
+	Scene* CreateScene(SceneDesc* pDesc);
+	void RemoveScene(Scene * pScene);
+}

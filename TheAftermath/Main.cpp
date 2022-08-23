@@ -41,9 +41,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     deviceDesc.mHwnd = window->GetHWND();
     auto device = TheAftermath::CreateGraphicsDevice(&deviceDesc);
 
+    TheAftermath::SceneDesc sceneDesc;
+    sceneDesc.pDevice = device;
+    auto scene = TheAftermath::CreateScene(&sceneDesc);
+
     window->Show(nShowCmd);
     TheAftermath::RunLoop(Draw, device);
 
+    TheAftermath::RemoveScene(scene);
     TheAftermath::RemoveGraphicsDevice(device);
     TheAftermath::RemoveRenderWindow(window);
     TheAftermath::RemoveContext();

@@ -81,6 +81,9 @@
     <ClCompile Include="TextureLoader\DDSTextureLoader12.cpp">
       <Filter>Source Files\TextureLoader</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime\ModernScene.cpp">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window\RenderWindow.h">

@@ -19,8 +19,23 @@ namespace TheAftermath {
         virtual uint32_t GetFrameIndex() const = 0;
         virtual void Present() = 0;
         virtual void Wait() = 0;
+        virtual uint32_t GetViewportWidth() const = 0;
+        virtual uint32_t GetViewportHeight() const = 0;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);
     void RemoveGraphicsDevice(GraphicsDevice* pDevice);
+
+    struct GBufferDesc {
+        GraphicsDevice* pDevice;
+        uint32_t mWidth;
+        uint32_t mHeight;
+    };
+    class GBuffer {
+    public:
+        virtual ID3D12Resource* GetBaseColorResource() const = 0;
+    };
+
+    GBuffer* CreateGBuffer(GBufferDesc* pDesc);
+    void RemoveGBuffer(GBuffer* pBuffer);
 }
