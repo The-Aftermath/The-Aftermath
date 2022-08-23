@@ -1,6 +1,5 @@
 #include "Graphics.h"
-
-#include "RenderTargetState.h"
+#include "../Utility/Utility.h"
 
 #include "d3dx12.h"
 
@@ -64,19 +63,39 @@ namespace TheAftermath {
 
             _CreateCmd();
             // pipeline
+            auto OutputVS = ReadData(L"OutputVS.cso");
+            auto OutputPS = ReadData(L"OutputPS.cso");
+            pDevice->CreateRootSignature(0, OutputVS.data(), OutputVS.size(), IID_PPV_ARGS(&pOutputRoot));
+
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-            psoDesc.InputLayout = { 0, 0 };
-            //psoDesc.pRootSignature = pSceneRoot;
-            //psoDesc.VS = { SceneVSBlob.data(), SceneVSBlob.size() };
-            //psoDesc.PS = { ScenePSBlob.data(), ScenePSBlob.size() };
-            //psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-            //psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-            //psoDesc.SampleMask = 0xffffffff;
-            //psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-            //psoDesc.NumRenderTargets = 1;
-            //psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-            //psoDesc.SampleDesc.Count = 1;
-            //pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
+            psoDesc.InputLayout = { nullptr, 0 };
+            psoDesc.pRootSignature = pOutputRoot;
+            psoDesc.VS = { OutputVS.data(), OutputVS.size() };
+            psoDesc.PS = { OutputPS.data(), OutputPS.size() };
+            psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+            psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+            psoDesc.SampleMask = 0xffffffff;
+            psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            psoDesc.NumRenderTargets = 1;
+            psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+            psoDesc.SampleDesc.Count = 1;
+            pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pOutputPipeline));
+            // swapchain rtv
+            D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+            rtvHeapDesc.NumDescriptors = 3;
+            rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+            pDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&p_SC_RTVHeap));
+            CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart());
+            mRTVDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            for (uint32_t n = 0; n < 3; ++n)
+            {
+                ID3D12Resource* _res;
+                pSwapChain->GetBuffer(n, IID_PPV_ARGS(&_res));
+                pDevice->CreateRenderTargetView(_res, nullptr, rtvHandle);
+                rtvHandle.Offset(1, mRTVDescriptorSize);
+                _res->Release();
+            }
         }
 
         ~AGraphicsDevice() {
@@ -89,6 +108,10 @@ namespace TheAftermath {
                     m_fenceValues[m_backBufferIndex]++;
                 }
             }
+            p_SC_RTVHeap->Release();
+
+            pOutputPipeline->Release();
+            pOutputRoot->Release();
 
             pFrameAllocator[0]->Release();
             pFrameAllocator[1]->Release();
@@ -156,9 +179,43 @@ namespace TheAftermath {
 
         virtual void BeginDraw() {
             auto index = GetFrameIndex();
+            pFrameAllocator[index]->Reset();
+            pList->Reset(pFrameAllocator[index], pOutputPipeline);
+         
+            CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
+            pList->RSSetViewports(1, &viewport);
+            CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
+            pList->RSSetScissorRects(1, &scissorRect);
+
+            ID3D12Resource* renderTarget;
+            pSwapChain->GetBuffer(index, IID_PPV_ARGS(&renderTarget));
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            pList->ResourceBarrier(1, &barrier);
+
+            CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart(), index, mRTVDescriptorSize);
+            pList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+            renderTarget->Release();
         }
         virtual void EndDraw() {
+            auto index = GetFrameIndex();
+            ID3D12Resource* renderTarget;
+            pSwapChain->GetBuffer(index, IID_PPV_ARGS(&renderTarget));
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+            pList->ResourceBarrier(1, &barrier);
+            pList->Close();
+            ID3D12CommandList* pLists[] = { pList };
+            pMainQueue->ExecuteCommandLists(1, pLists);
 
+            renderTarget->Release();
+        }
+
+        void DrawTexture(ID3D12DescriptorHeap* pSrv) {
+            ID3D12DescriptorHeap* ppHeaps[] = { pSrv };
+            pList->SetDescriptorHeaps(1, ppHeaps);
+            pList->SetGraphicsRootSignature(pOutputRoot);
+
+            pList->DrawInstanced(3, 1, 0, 0);
         }
 
         void _CreateCmd() {
@@ -184,6 +241,10 @@ namespace TheAftermath {
         ID3D12GraphicsCommandList8* pList;
 
         ID3D12PipelineState* pOutputPipeline;
+        ID3D12RootSignature* pOutputRoot;
+
+        ID3D12DescriptorHeap* p_SC_RTVHeap;
+        UINT mRTVDescriptorSize;
 
         uint32_t mWidth;
         uint32_t mHeight;

@@ -23,6 +23,7 @@ namespace TheAftermath {
         virtual uint32_t GetViewportHeight() const = 0;
         virtual void BeginDraw() = 0;
         virtual void EndDraw() = 0;
+        virtual void DrawTexture(ID3D12DescriptorHeap* pSrv) = 0;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);
