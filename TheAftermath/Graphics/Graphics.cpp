@@ -63,6 +63,20 @@ namespace TheAftermath {
             mHeight = pDesc->mHeight;
 
             _CreateCmd();
+            // pipeline
+            //D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+            //psoDesc.InputLayout = { sceneInputDesc, 4 };
+            //psoDesc.pRootSignature = pSceneRoot;
+            //psoDesc.VS = { SceneVSBlob.data(), SceneVSBlob.size() };
+            //psoDesc.PS = { ScenePSBlob.data(), ScenePSBlob.size() };
+            //psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+            //psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+            //psoDesc.SampleMask = 0xffffffff;
+            //psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            //psoDesc.NumRenderTargets = 1;
+            //psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+            //psoDesc.SampleDesc.Count = 1;
+            //pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pScenePSO));
         }
 
         ~AGraphicsDevice() {
@@ -168,6 +182,8 @@ namespace TheAftermath {
 
         ID3D12CommandAllocator* pFrameAllocator[3];
         ID3D12GraphicsCommandList8* pList;
+
+        ID3D12PipelineState* pOutputPipeline;
 
         uint32_t mWidth;
         uint32_t mHeight;

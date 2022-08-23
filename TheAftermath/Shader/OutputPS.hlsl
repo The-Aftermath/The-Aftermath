@@ -1,4 +1,12 @@
-float4 main() : SV_TARGET
+Texture2D Texure : register(t0);
+SamplerState TextureSampler : register(s0);
+
+struct VertexOutput {
+	float4 Position: SV_POSITION;
+	float2 Tex: TEXCOORD;
+};
+
+float4 main(VertexOutput Out) : SV_TARGET
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+	return Texure.Sample(TextureSampler, Out.Tex);
 }
