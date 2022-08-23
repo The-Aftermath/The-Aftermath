@@ -21,6 +21,8 @@ namespace TheAftermath {
         virtual void Wait() = 0;
         virtual uint32_t GetViewportWidth() const = 0;
         virtual uint32_t GetViewportHeight() const = 0;
+        virtual void BeginDraw() = 0;
+        virtual void EndDraw() = 0;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);

@@ -61,6 +61,8 @@ namespace TheAftermath {
             }
             mWidth = pDesc->mWidth;
             mHeight = pDesc->mHeight;
+
+            _CreateCmd();
         }
 
         ~AGraphicsDevice() {
@@ -73,6 +75,11 @@ namespace TheAftermath {
                     m_fenceValues[m_backBufferIndex]++;
                 }
             }
+
+            pFrameAllocator[0]->Release();
+            pFrameAllocator[1]->Release();
+            pFrameAllocator[2]->Release();
+            pList->Release();
 
             pMainQueue->Release();
             pDevice->Release();
@@ -133,6 +140,21 @@ namespace TheAftermath {
             return mHeight;
         }
 
+        virtual void BeginDraw() {
+            auto index = GetFrameIndex();
+        }
+        virtual void EndDraw() {
+
+        }
+
+        void _CreateCmd() {
+            for (uint32_t n = 0; n < 3; ++n)
+            {
+                pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
+            }
+            pDevice->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&pList));
+        }
+
         ID3D12Device11* pDevice = nullptr;
         IDXGIFactory7* pFactory = nullptr;
         ID3D12CommandQueue* pMainQueue = nullptr;
@@ -143,6 +165,9 @@ namespace TheAftermath {
         UINT64 m_fenceValues[3]{ 0,0,0 };
         UINT m_backBufferIndex = 0;
         HANDLE m_Handle = nullptr;
+
+        ID3D12CommandAllocator* pFrameAllocator[3];
+        ID3D12GraphicsCommandList8* pList;
 
         uint32_t mWidth;
         uint32_t mHeight;

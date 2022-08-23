@@ -4,6 +4,7 @@ namespace TheAftermath {
 	public:
 		AModernScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
+			//Gbuffer
 			GBufferDesc gbufferDesc;
 			gbufferDesc.pDevice = pDevice;
 			gbufferDesc.mWidth = pDevice->GetViewportWidth();
@@ -14,7 +15,11 @@ namespace TheAftermath {
 			RemoveGBuffer(pGbuffer);
 		}
 
-		void Update() {}
+		void Update() {
+			pDevice->BeginDraw();
+			pDevice->EndDraw();
+			pDevice->Present();
+		}
 
 
 		GraphicsDevice* pDevice;
