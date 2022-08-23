@@ -64,8 +64,8 @@ namespace TheAftermath {
 
             _CreateCmd();
             // pipeline
-            //D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-            //psoDesc.InputLayout = { sceneInputDesc, 4 };
+            D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+            psoDesc.InputLayout = { 0, 0 };
             //psoDesc.pRootSignature = pSceneRoot;
             //psoDesc.VS = { SceneVSBlob.data(), SceneVSBlob.size() };
             //psoDesc.PS = { ScenePSBlob.data(), ScenePSBlob.size() };

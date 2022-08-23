@@ -84,6 +84,9 @@
     <ClCompile Include="Runtime\ModernScene.cpp">
       <Filter>Source Files\Runtime</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\Utility.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window\RenderWindow.h">

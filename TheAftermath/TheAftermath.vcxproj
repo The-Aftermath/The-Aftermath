@@ -87,6 +87,7 @@
     <ClCompile Include="TextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="TextureLoader\WICTextureLoader12.cpp" />
     <ClCompile Include="Utility\Json.cpp" />
+    <ClCompile Include="Utility\Utility.cpp" />
     <ClCompile Include="Window\RenderWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
