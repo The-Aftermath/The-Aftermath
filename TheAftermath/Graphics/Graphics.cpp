@@ -55,11 +55,6 @@ namespace TheAftermath {
             if (debugController) {
                 debugController->Release();
             }
-
-            for (UINT n = 0; n < 3; n++)
-            {
-                m_swapChain->GetBuffer(n, IID_PPV_ARGS(&pSC_Res[n]));
-            }
         }
 
         ~AGraphicsDevice() {
@@ -79,9 +74,6 @@ namespace TheAftermath {
             pSwapChain->Release();
             m_swapChain->Release();
             pFence->Release();
-            pSC_Res[0]->Release();
-            pSC_Res[1]->Release();
-            pSC_Res[2]->Release();
             CloseHandle(m_Handle);
         }
 
@@ -123,13 +115,6 @@ namespace TheAftermath {
 
             m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
         }
-        ID3D12Resource* GetResource(uint32_t index) const {
-            if (index >= 3) {
-                return nullptr;
-            }
-
-            return pSC_Res[index];
-        }
 
         uint32_t GetFrameIndex() const {
             return m_swapChain->GetCurrentBackBufferIndex();
@@ -141,7 +126,6 @@ namespace TheAftermath {
         IDXGISwapChain1* pSwapChain = nullptr;
         IDXGISwapChain4* m_swapChain = nullptr;
         ID3D12Fence1* pFence = nullptr;
-        ID3D12Resource* pSC_Res[3]{};
 
         UINT64 m_fenceValues[3]{ 0,0,0 };
         UINT m_backBufferIndex = 0;
