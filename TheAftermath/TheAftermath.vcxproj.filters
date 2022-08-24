@@ -49,12 +49,6 @@
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{904057d0-0e5c-4b1c-ae08-1e9da3eded38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\TextureLoader">
-      <UniqueIdentifier>{423bf6fd-7235-4429-9c8d-634709dc53b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\TextureLoader">
-      <UniqueIdentifier>{d44c1e89-45d1-485d-a37e-367315baf5b3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -74,12 +68,6 @@
     </ClCompile>
     <ClCompile Include="Utility\Json.cpp">
       <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureLoader\WICTextureLoader12.cpp">
-      <Filter>Source Files\TextureLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureLoader\DDSTextureLoader12.cpp">
-      <Filter>Source Files\TextureLoader</Filter>
     </ClCompile>
     <ClCompile Include="Runtime\ModernScene.cpp">
       <Filter>Source Files\Runtime</Filter>
@@ -110,21 +98,15 @@
     <ClInclude Include="Runtime\Camera.h">
       <Filter>Header Files\Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="TextureLoader\WICTextureLoader12.h">
-      <Filter>Header Files\TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureLoader\DDSTextureLoader12.h">
-      <Filter>Header Files\TextureLoader</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shader\SceneVS.hlsl">
+    <FxCompile Include="Shader\GBufferVS.hlsl">
       <Filter>Resource Files\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Shader\ScenePS.hlsl">
+    <FxCompile Include="Shader\GBufferPS.hlsl">
       <Filter>Resource Files\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Shader\OutputVS.hlsl">

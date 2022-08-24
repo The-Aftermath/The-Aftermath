@@ -22,12 +22,15 @@ namespace TheAftermath {
 		}
 
 		void Update() {
+
+
+
+
 			pDevice->BeginDraw();
 			pDevice->DrawTexture(pTexture->GetSRV());
 			pDevice->EndDraw();
 			pDevice->Present();
 		}
-
 
 		GraphicsDevice* pDevice;
 		GBuffer* pGbuffer;

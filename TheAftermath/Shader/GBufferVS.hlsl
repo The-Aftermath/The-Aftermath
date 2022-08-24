@@ -17,9 +17,6 @@ cbuffer SceneCB : register(b0) {
 	float4 Light;
 };
 
-#define SceneRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),"\
-"CBV(b0),DescriptorTable(SRV(t0, numDescriptors = unbounded,flags = DESCRIPTORS_VOLATILE)),StaticSampler(s2)"
-[RootSignature(SceneRoot)]
 VertexOutput main(VertexInput pIn)
 {
 	VertexOutput vertex;
