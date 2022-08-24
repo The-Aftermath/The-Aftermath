@@ -3,7 +3,8 @@ struct VertexOutput {
 	float2 Tex: TEXCOORD;
 };
 
-#define MyRoot "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),DescriptorTable(SRV(t0)),StaticSampler(s0)"
+#define MyRoot "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),DescriptorTable(SRV(t0)),"\
+"StaticSampler(s0,filter = FILTER_MIN_MAG_MIP_LINEAR)"
 [RootSignature(MyRoot)]
 VertexOutput main(uint VertexID : SV_VertexID) {
 	VertexOutput Out;
