@@ -10,13 +10,20 @@ namespace TheAftermath {
 			gbufferDesc.mWidth = pDevice->GetViewportWidth();
 			gbufferDesc.mHeight = pDevice->GetViewportHeight();
 			pGbuffer = CreateGBuffer(&gbufferDesc);
+			//
+			TextureDesc texDesc;
+			texDesc.pDevice = pDevice;
+			texDesc.mFilePath = L"Asset/test.png";
+			pTexture = CreateTexture(&texDesc);
 		}
 		~AModernScene() {
+			RemoveTexture(pTexture);
 			RemoveGBuffer(pGbuffer);
 		}
 
 		void Update() {
 			pDevice->BeginDraw();
+			pDevice->DrawTexture(pTexture->GetSRV());
 			pDevice->EndDraw();
 			pDevice->Present();
 		}
@@ -24,6 +31,7 @@ namespace TheAftermath {
 
 		GraphicsDevice* pDevice;
 		GBuffer* pGbuffer;
+		Texture* pTexture;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

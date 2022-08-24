@@ -1,6 +1,9 @@
 #include "Graphics.h"
 #include "../Utility/Utility.h"
 
+#include "WICTextureLoader.h"
+#include "ResourceUploadBatch.h"
+
 #include "d3dx12.h"
 
 #include <combaseapi.h>
@@ -186,6 +189,7 @@ namespace TheAftermath {
             pList->RSSetViewports(1, &viewport);
             CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
             pList->RSSetScissorRects(1, &scissorRect);
+            pList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
             ID3D12Resource* renderTarget;
             pSwapChain->GetBuffer(index, IID_PPV_ARGS(&renderTarget));
@@ -259,6 +263,48 @@ namespace TheAftermath {
         delete temp_ptr;
     }
 
+    class ATexture : public Texture {
+    public:
+        ATexture(TextureDesc* pDesc) {
+            pDevice = pDesc->pDevice;
+
+            DirectX::ResourceUploadBatch resourceUpload(pDevice->GetDevice());
+            resourceUpload.Begin();
+
+            DirectX::CreateWICTextureFromFile(pDevice->GetDevice(), resourceUpload, pDesc->mFilePath.c_str(),
+                &pTex, false);
+
+            auto uploadResourcesFinished = resourceUpload.End(pDevice->GetImmediateCommandQueue());
+            uploadResourcesFinished.wait();
+
+            D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+            HeapDesc.NumDescriptors = 1;
+            HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            pDevice->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&pSrv));
+            pDevice->GetDevice()->CreateShaderResourceView(pTex, nullptr, pSrv->GetCPUDescriptorHandleForHeapStart());
+        }
+        ~ATexture() {
+            pTex->Release();
+            pSrv->Release();
+        }
+
+        ID3D12DescriptorHeap* GetSRV() const {
+            return pSrv;
+        }
+
+        GraphicsDevice* pDevice;
+        ID3D12Resource* pTex;
+        ID3D12DescriptorHeap* pSrv;
+    };
+
+    Texture* CreateTexture(TextureDesc* pDesc) {
+        return new ATexture(pDesc);
+    }
+    void RemoveTexture(Texture* pTexture) {
+        auto temp_ptr = dynamic_cast<ATexture*>(pTexture);
+        delete temp_ptr;
+    }
 
     class AGBuffer : public GBuffer {
     public:

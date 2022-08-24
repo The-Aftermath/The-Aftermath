@@ -1,4 +1,3 @@
-Texture2D Texure : register(t0);
 SamplerState TextureSampler : register(s0);
 
 struct VertexOutput {
@@ -8,5 +7,6 @@ struct VertexOutput {
 
 float4 main(VertexOutput Out) : SV_TARGET
 {
-	return Texure.Sample(TextureSampler, Out.Tex);
+	Texture2D<float4> myTexture = ResourceDescriptorHeap[0];
+	return myTexture.Sample(TextureSampler, Out.Tex);
 }

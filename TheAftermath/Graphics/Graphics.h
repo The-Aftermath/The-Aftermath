@@ -3,8 +3,10 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <cstdint>
+#include <string>
 
 namespace TheAftermath {
+
     struct GraphicsDeviceDesc {
         HWND mHwnd;
         uint32_t mWidth;
@@ -28,6 +30,18 @@ namespace TheAftermath {
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);
     void RemoveGraphicsDevice(GraphicsDevice* pDevice);
+
+    struct TextureDesc {
+        GraphicsDevice* pDevice;
+        std::wstring mFilePath;
+    };
+    class Texture {
+    public:
+        virtual ID3D12DescriptorHeap* GetSRV() const = 0;
+    };
+
+    Texture* CreateTexture(TextureDesc* pDesc);
+    void RemoveTexture(Texture* pTexture);
 
     struct GBufferDesc {
         GraphicsDevice* pDevice;
