@@ -1,15 +1,15 @@
 struct VertexInput{
-	float4 position: POSITION;
-	float3 normal : NORMAL;
-	float2 UV0: TEXCOORD;
-	uint vertex_id: VERTEX_ID;
+	float3 Pos : POSITION;
+	float3 Normal : NORMAL;
+	float2 UV0 : TEXCOORD0;
+	uint VertexID : ID;
 };
 
 struct VertexOutput {
-	float4 Position: SV_POSITION;
-	float3 Normal : NORMAL;
-	float2 UV0: TEXCOORD;
-	uint Vertex_id: VERTEX_ID;
+	float4 Pos : SV_POSITION;
+	float3 WNormal : NORMAL;
+	float2 UV0 : TEXCOORD;
+	uint VertexID : ID;
 };
 
 cbuffer SceneCB : register(b0) {
@@ -17,12 +17,11 @@ cbuffer SceneCB : register(b0) {
 	float4 Light;
 };
 
+#define SceneRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT)"
+[RootSignature(SceneRoot)]
 VertexOutput main(VertexInput pIn)
 {
 	VertexOutput vertex;
-	vertex.Position = mul(pIn.position, MVP);
-	vertex.Normal = pIn.normal;
-	vertex.UV0 = pIn.UV0;
-	vertex.Vertex_id = pIn.vertex_id;
+	vertex.Pos = float4(pIn.Pos, 1.0f);
 	return vertex;
 }

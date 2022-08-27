@@ -1,51 +1,75 @@
 #pragma once
-#include "../Graphics/Graphics.h"
 #include <DirectXMath.h>
+#include <cmath>
 namespace TheAftermath {
-	class Camera {
-	public:
-		Camera(
-			float PositionX, float PositionY, float PositionZ,
-			float FocusX, float FocusY, float FocusZ,
-			float UpX, float UpY, float UpZ,
-			float FovAngleY,float AspectRatio,float NearZ,float FarZ
-		) {
-			DirectX::XMVECTOR position;
-			position.m128_f32[0] = PositionX;
-			position.m128_f32[1] = PositionY;
-			position.m128_f32[2] = PositionZ;
-			position.m128_f32[3] = 1.f;
-			DirectX::XMVECTOR focus;
-			focus.m128_f32[0] = FocusX;
-			focus.m128_f32[1] = FocusY;
-			focus.m128_f32[2] = FocusZ;
-			focus.m128_f32[3] = 1.f;
-			DirectX::XMVECTOR up;
-			up.m128_f32[0] = UpX;
-			up.m128_f32[1] = UpY;
-			up.m128_f32[2] = UpZ;
-			up.m128_f32[3] = 1.f;
+    class Camera
+    {
+    public:
+        Camera();
 
-			_v = DirectX::XMMatrixLookAtLH(position, focus, up);
-			_p = DirectX::XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ);
-		}
+        void SetPerspectiveMatrix(float FovAngleY, float AspectRatio, float NearZ, float FarZ) {
+            mFovAngleY = FovAngleY;
+            mAspectRatio = AspectRatio;
+            mNearZ = NearZ;
+            mFarZ = FarZ;
+            mProj = DirectX::XMMatrixPerspectiveFovLH(mFovAngleY, mAspectRatio, mNearZ, mFarZ);
+        }
 
-		DirectX::XMFLOAT4X4 GetVP() const {
-			auto vp =  _v * _p;
-			auto vpT = DirectX::XMMatrixTranspose(vp);
-			DirectX::XMFLOAT4X4 _temp;
-			DirectX::XMStoreFloat4x4(&_temp, vpT);
-			return _temp;
-		}
-		Camera(const Camera&) = default;
-		Camera(Camera&&) noexcept = default;
-		Camera& operator=(const Camera&) = default;
-		Camera& operator=(Camera&&) noexcept = default;
+        void Strafe(float distance) {
+            using namespace DirectX;
+            mPos += (mRight * distance);
+            mViewDirty = true;
+        }
+        void Walk(float distance) {
+            using namespace DirectX;
+            mPos += (mDir * distance);
+            mViewDirty = true;
+        }
 
+        void Pitch(float angle) {
+            using namespace DirectX;
+            auto R = XMMatrixRotationAxis(mRight, angle);
+            mUp = XMVector3TransformNormal(mUp, R);
+            mDir = XMVector3TransformNormal(mDir, R);
+            mViewDirty = true;
 
-	private:
-		DirectX::XMMATRIX _v;
-		DirectX::XMMATRIX _p;
+            XMFLOAT4 up;
+            XMStoreFloat4(&up, mUp);
+            if (up.y <= 0.05f) {
+                up.y = 0.05f;
+                mUp = XMLoadFloat4(&up);
+                mDir = XMVector3Cross(mRight, mUp);
+            }
+        }
+        void Yaw(float angle) {
+            using namespace DirectX;
+            XMMATRIX R = XMMatrixRotationY(angle);//旋转轴为Y轴，得到旋转矩阵
+            mRight = XMVector3TransformNormal(mRight, R);//矩阵变换后的up向量
+            mDir = XMVector3TransformNormal(mDir, R);//矩阵变换后的look向量
+            mViewDirty = true;
+        }
 
-	};
+        void UpdateViewMatrix();
+
+        float* GetNative() {
+            return mMatrixNative;
+        }
+    private:
+        float mFovAngleY;
+        float mAspectRatio;
+        float mNearZ;
+        float mFarZ;
+
+        DirectX::XMMATRIX mProj;
+
+        DirectX::XMVECTOR mPos;
+        DirectX::XMVECTOR mDir;
+        DirectX::XMVECTOR mUp;
+        DirectX::XMVECTOR mRight;
+
+        DirectX::XMMATRIX mView;
+
+        bool mViewDirty = false;
+        float mMatrixNative[32];
+    };
 }
