@@ -12,13 +12,14 @@ struct VertexOutput {
 	uint VertexID : ID;
 };
 
-cbuffer SceneCB : register(b0) {
-	matrix MVP;
+cbuffer GBufferCB : register(b0) {
+	matrix V;
+	matrix P;
 	float4 Light;
 };
 
-#define SceneRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT)"
-[RootSignature(SceneRoot)]
+#define GBufferRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),CBV(b0)"
+[RootSignature(GBufferRoot)]
 VertexOutput main(VertexInput pIn)
 {
 	VertexOutput vertex;

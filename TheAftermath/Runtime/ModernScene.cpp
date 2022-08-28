@@ -2,6 +2,8 @@
 #include "Camera.h"
 #include "../Utility/Utility.h"
 
+#include "d3dx12.h"
+
 #include <combaseapi.h>
 namespace TheAftermath {
 	class AModernScene : public Scene {
@@ -22,13 +24,30 @@ namespace TheAftermath {
 			//GBuffer Pass
 			auto GBufferVS = ReadData(L"GBufferVS.cso");
 			auto GBufferPS = ReadData(L"GBufferPS.cso");
-			pDevice->GetDevice()->CreateRootSignature(0, GBufferVS.data(), GBufferVS.size(), IID_PPV_ARGS(&pSceneRoot));
+			pDevice->GetDevice()->CreateRootSignature(0, GBufferVS.data(), GBufferVS.size(), IID_PPV_ARGS(&pGBufferRoot));
+			
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+			psoDesc.InputLayout = { nullptr, 0 };
+			psoDesc.pRootSignature = pGBufferRoot;
+			psoDesc.VS = { GBufferVS.data(), GBufferVS.size() };
+			psoDesc.PS = { GBufferPS.data(), GBufferPS.size() };
+			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			psoDesc.SampleMask = 0xffffffff;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 1;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			psoDesc.SampleDesc.Count = 1;
+			pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pGBufferPipeline));
+
+			
 			// Camera
 			float w = pDevice->GetViewportWidth(), h = pDevice->GetViewportHeight();
 			mCamera.SetPerspectiveMatrix(DirectX::XM_PIDIV4, w / h, 1.f, 1000.f);
 		}
 		~AModernScene() {
-			pSceneRoot->Release();
+			pGBufferPipeline->Release();
+			pGBufferRoot->Release();
 			RemoveTexture(pTexture);
 			RemoveGBuffer(pGbuffer);
 		}
@@ -51,7 +70,8 @@ namespace TheAftermath {
 		//
 		Camera mCamera;
 		//
-		ID3D12RootSignature* pSceneRoot;
+		ID3D12RootSignature* pGBufferRoot;
+		ID3D12PipelineState* pGBufferPipeline;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

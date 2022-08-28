@@ -13,7 +13,7 @@ namespace TheAftermath {
 	public:
 		JsonValue(std::nullptr_t) : mValue(nullptr) {}
 		template<typename T>
-			requires std::is_arithmetic_v<T>
+		requires std::is_arithmetic_v<T>
 		JsonValue(T t) : mValue(winrt::Windows::Data::Json::JsonValue::Parse(std::to_wstring(t))) {}
 		JsonValue(const std::wstring& input) : mValue(winrt::Windows::Data::Json::JsonValue::CreateStringValue(input)) {}
 		JsonValue(bool boolean) : mValue(winrt::Windows::Data::Json::JsonValue::CreateBooleanValue(boolean)) {}

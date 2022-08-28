@@ -1,20 +1,18 @@
+struct VertexOutput {
+	float4 Pos : SV_POSITION;
+	float3 WNormal : NORMAL;
+	float2 UV0 : TEXCOORD;
+	uint VertexID : ID;
+};
 
-Texture2D<float4> Tex[] : register(t0);
-SamplerState MeshTextureSampler:register(s2);
-
-cbuffer SceneCB : register(b0) {
-	matrix MVP;
+cbuffer GBufferCB : register(b0) {
+	matrix V;
+	matrix P;
 	float4 Light;
 };
 
-struct VertexOutput {
-	float4 Position: SV_POSITION;
-	float3 Normal : NORMAL;
-	float2 UV0: TEXCOORD;
-	uint Vertex_id: VERTEX_ID;
-};
 
 float4 main(VertexOutput vOut) : SV_TARGET
 {
-	return Tex[NonUniformResourceIndex(vOut.Vertex_id)].Sample(MeshTextureSampler,float2(vOut.UV0));
+	return float4(1,1,1,1);
 }
