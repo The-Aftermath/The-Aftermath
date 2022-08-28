@@ -16,6 +16,8 @@ namespace TheAftermath {
 
         SetPerspectiveMatrix(DirectX::XM_PIDIV4, 16.f / 9.f, 1.f, 1000.f);
 
+        Pitch(0.0f);
+
         auto vT = DirectX::XMMatrixTranspose(mView);
         auto pT = DirectX::XMMatrixTranspose(mProj);
 
