@@ -11,7 +11,6 @@ cbuffer GBufferCB : register(b0) {
 	float4 Light;
 };
 
-
 float4 main(VertexOutput vOut) : SV_TARGET
 {
 	return float4(1,1,1,1);
