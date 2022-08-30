@@ -45,6 +45,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
     sceneDesc.pDevice = device;
     auto scene = TheAftermath::CreateScene(&sceneDesc);
 
+    scene->LoadStaticModel(L"Model/Box");
+
     window->Show(nShowCmd);
     TheAftermath::RunLoop(Draw, scene, device);
 
