@@ -3,7 +3,9 @@
 #include "../Utility/Utility.h"
 #include "../Utility/Json.h"
 
+// 3rd
 #include "d3dx12.h"
+#include "json.hpp"
 
 #include <combaseapi.h>
 #include <filesystem>
@@ -70,12 +72,13 @@ namespace TheAftermath {
 			std::filesystem::path modelBinPath = modelParentPath / modelStem;
 			modelBinPath.concat(".bin");
 
+			
 			//std::wifstream()
 		   
-            std::wifstream model_Json_fs(modelJsonPath);
-			auto modelJsonSize = std::filesystem::file_size(modelJsonPath);
-            wchar_t* jsonStr = new wchar_t[modelJsonSize + 1] {};
-            model_Json_fs.read(jsonStr, modelJsonSize);
+   //         std::wifstream model_Json_fs(modelJsonPath);
+			//auto modelJsonSize = std::filesystem::file_size(modelJsonPath);
+   //         wchar_t* jsonStr = new wchar_t[modelJsonSize + 1] {};
+   //         model_Json_fs.read(jsonStr, modelJsonSize);
 
 		}
 
