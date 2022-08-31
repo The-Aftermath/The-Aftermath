@@ -157,6 +157,7 @@ namespace TheAftermath {
 			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart(), index, mRTVDescriptorSize);
 			pList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 		}
+
 		virtual void EndDraw() {
 			auto index = m_backBufferIndex;
 			Microsoft::WRL::ComPtr<ID3D12Resource> renderTarget;
@@ -250,7 +251,11 @@ namespace TheAftermath {
 		void Release() { delete this; }
 
 		ID3D12PipelineState* GetPipelineState() const {
-			return nullptr;
+			return pOutputPipeline;
+		}
+
+		ID3D12RootSignature* GetRootSignature() const {
+			return pOutputRoot;
 		}
 
 		Device* pDevice;

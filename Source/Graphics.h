@@ -23,6 +23,25 @@ namespace TheAftermath {
 
 	Device* CreateDevice(DeviceDesc* pDesc);
 
+	struct DescriptorHeapPoolDesc {
+		Device* pDevice = nullptr;
+	};
+
+	struct DescriptorHeapPool : public AObject {
+		
+	};
+
+
+	struct GBufferDesc {
+		Device* pDevice = nullptr;
+		uint32_t mWidth = 800;
+		uint32_t mHeight = 600;
+	};
+	struct GBuffer : public AObject {
+
+	};
+
+
 	struct GraphicsPipelineStateDesc {
 		Device* pDevice = nullptr;
 		std::wstring mVertexShaderCSO;
@@ -32,9 +51,9 @@ namespace TheAftermath {
 		DXGI_FORMAT mRTVFormats[8]{};
 	};
 
-	struct GraphicsPipelineState
-	{
+	struct GraphicsPipelineState : public AObject {
 		virtual ID3D12PipelineState* GetPipelineState() const = 0;
+		virtual ID3D12RootSignature* GetRootSignature() const = 0;
 	};
 	GraphicsPipelineState* CreateGraphicsPipelineState(GraphicsPipelineStateDesc* pDesc);
 
@@ -42,7 +61,7 @@ namespace TheAftermath {
 		Device* pDevice = nullptr;
 	};
 
-	struct DynamicVertexBuffer {
+	struct DynamicVertexBuffer : public AObject {
 
 	};
 }
