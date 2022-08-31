@@ -147,6 +147,16 @@ namespace TheAftermath {
         ID3D12CommandQueue* GetImmediateCommandQueue() const {
             return pMainQueue;
         }
+
+        ID3D12CommandAllocator* GetActiveAllocator() const {
+            return pFrameAllocator[m_backBufferIndex];
+        }
+
+        ID3D12GraphicsCommandList* GetActiveList() const {
+            return pList;
+        }
+
+
         void Wait() {
             const UINT64 fenceValue = m_fenceValues[m_backBufferIndex];
             if (SUCCEEDED(pMainQueue->Signal(pFence, fenceValue)))

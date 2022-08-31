@@ -36,7 +36,13 @@ namespace TheAftermath {
 	public:
 		AModernScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
-			//
+			// gbuffer
+			GBufferDesc gbufferDesc;
+			gbufferDesc.pDevice = pDevice;
+			gbufferDesc.mWidth = pDevice->GetViewportWidth();
+			gbufferDesc.mHeight = pDevice->GetViewportHeight();
+			pGbuffer = CreateGBuffer(&gbufferDesc);
+
 			TextureDesc texDesc;
 			texDesc.pDevice = pDevice;
 			texDesc.mFilePath = L"Asset/test.png";
@@ -64,7 +70,7 @@ namespace TheAftermath {
 			psoDesc.SampleMask = 0xffffffff;
 			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			psoDesc.NumRenderTargets = 1;
-			psoDesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			psoDesc.RTVFormats[0] = pGbuffer->GetBaseColorFormat();
 			psoDesc.SampleDesc.Count = 1;
 			pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pGBufferPipeline));
 			// Camera
@@ -96,13 +102,7 @@ namespace TheAftermath {
 			void* pCbvDataBegin;
 			pSceneCB->Map(0, nullptr, reinterpret_cast<void**>(&pCbvDataBegin));
 			pSceneCB_CPU = (GBufferCB*)pCbvDataBegin;
-			// gbuffer
-		
-			GBufferDesc gbufferDesc;
-			gbufferDesc.pDevice = pDevice;
-			gbufferDesc.mWidth = pDevice->GetViewportWidth();
-			gbufferDesc.mHeight = pDevice->GetViewportHeight();
-			pGbuffer = CreateGBuffer(&gbufferDesc);
+			
 			// gbuffer Descriptor Handle
 			mBaseHandle = mSceneCV_CBV;
 			mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
