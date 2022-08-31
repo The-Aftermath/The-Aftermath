@@ -1,2 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 project(TheAftermath)
+add_subdirectory("ThirdParty/D3D12MemoryAllocator")
+#add_subdirectory("ThirdParty/FidelityFX-FSR2")
+add_subdirectory("Source")
