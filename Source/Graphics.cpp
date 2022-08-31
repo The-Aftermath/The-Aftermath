@@ -130,9 +130,7 @@ namespace TheAftermath {
 			CloseHandle(m_Handle);
 		}
 
-		void Release() {
-			delete this;
-		}
+		void Release() { delete this; }
 
 		ID3D12Device* GetDevice() const {
 			return pDevice;
@@ -214,6 +212,25 @@ namespace TheAftermath {
 
 	Device* CreateDevice(DeviceDesc* pDesc) {
 		return new ADevice(pDesc);
+	}
+
+	struct ADescriptorHeapPool : public DescriptorHeapPool {
+		ADescriptorHeapPool(DescriptorHeapPoolDesc* pDesc) {
+
+		}
+
+		~ADescriptorHeapPool() {}
+
+		void Release() { delete this; }
+		virtual ID3D12DescriptorHeap* GetCBV_SRV_UAVDescriptorHeap() const {
+			return nullptr;
+		}
+		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const {
+			return nullptr;
+		}
+	};
+	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc) {
+		return nullptr;
 	}
 
 	struct AGraphicsPipelineState : public GraphicsPipelineState {

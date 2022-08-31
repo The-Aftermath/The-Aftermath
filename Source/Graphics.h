@@ -28,9 +28,10 @@ namespace TheAftermath {
 	};
 
 	struct DescriptorHeapPool : public AObject {
-		
+		virtual ID3D12DescriptorHeap* GetCBV_SRV_UAVDescriptorHeap() const = 0;
+		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const = 0;
 	};
-
+	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc);
 
 	struct GBufferDesc {
 		Device* pDevice = nullptr;
