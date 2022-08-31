@@ -129,9 +129,11 @@ namespace TheAftermath {
 
 			CloseHandle(m_Handle);
 		}
+
 		void Release() {
 			delete this;
 		}
+
 		ID3D12Device* GetDevice() const {
 			return pDevice;
 		}
@@ -212,4 +214,69 @@ namespace TheAftermath {
 	Device* CreateDevice(DeviceDesc* pDesc) {
 		return new ADevice(pDesc);
 	}
+
+	struct AGraphicsPipelineState : public GraphicsPipelineState {
+		AGraphicsPipelineState(GraphicsPipelineStateDesc* pDesc) {
+			pDevice = pDesc->pDevice;
+			if (!pDevice) {
+				throw std::exception("Device is nullptr.");
+			}
+
+			auto VS = ReadData(pDesc->mVertexShaderCSO.c_str());
+			auto PS = ReadData(pDesc->mPixelShaderCSO.c_str());
+			pDevice->GetDevice()->CreateRootSignature(0, VS.data(), VS.size(), IID_PPV_ARGS(&pOutputRoot));
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+			psoDesc.InputLayout = pDesc->mInputLayout;
+			psoDesc.pRootSignature = pOutputRoot;
+			psoDesc.VS = { VS.data(), VS.size() };
+			psoDesc.PS = { PS.data(), PS.size() };
+			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			psoDesc.SampleMask = 0xffffffff;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = pDesc->mNumRenderTargets;
+			for (int i = 0;i < 8; ++i) {
+				psoDesc.RTVFormats[i] = pDesc->mRTVFormats[i];
+			}
+			psoDesc.SampleDesc.Count = 1;
+			pDevice->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pOutputPipeline));
+		}
+		~AGraphicsPipelineState() {
+			pOutputRoot->Release();
+			pOutputPipeline->Release();
+
+		}
+		void Release() { delete this; }
+
+		ID3D12PipelineState* GetPipelineState() const {
+			return nullptr;
+		}
+
+		Device* pDevice;
+		ID3D12RootSignature* pOutputRoot;
+		ID3D12PipelineState* pOutputPipeline;
+	};
+
+	GraphicsPipelineState* CreateGraphicsPipelineState(GraphicsPipelineStateDesc* pDesc) {
+		return new AGraphicsPipelineState(pDesc);
+	}
+
+	struct ADynamicVertexBuffer : public DynamicVertexBuffer {
+		ADynamicVertexBuffer(DynamicVertexBufferDesc* pDesc) {
+			pDevice = pDesc->pDevice;
+			if (!pDevice) {
+				throw std::exception("Device is nullptr.");
+			}
+
+		}
+
+		~ADynamicVertexBuffer() {}
+
+		void Release() {
+			delete this;
+		}
+
+		Device* pDevice;
+	};
 }

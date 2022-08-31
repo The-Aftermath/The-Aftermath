@@ -5,6 +5,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <cstdint>
+#include <string>
 namespace TheAftermath {
 
 	struct DeviceDesc {
@@ -21,6 +22,21 @@ namespace TheAftermath {
 	};
 
 	Device* CreateDevice(DeviceDesc* pDesc);
+
+	struct GraphicsPipelineStateDesc {
+		Device* pDevice = nullptr;
+		std::wstring mVertexShaderCSO;
+		std::wstring mPixelShaderCSO;
+		D3D12_INPUT_LAYOUT_DESC mInputLayout{ nullptr, 0 };
+		uint32_t mNumRenderTargets = 0;
+		DXGI_FORMAT mRTVFormats[8]{};
+	};
+
+	struct GraphicsPipelineState
+	{
+		virtual ID3D12PipelineState* GetPipelineState() const = 0;
+	};
+	GraphicsPipelineState* CreateGraphicsPipelineState(GraphicsPipelineStateDesc* pDesc);
 
 	struct DynamicVertexBufferDesc {
 		Device* pDevice = nullptr;
