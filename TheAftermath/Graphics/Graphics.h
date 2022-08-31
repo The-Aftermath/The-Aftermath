@@ -51,6 +51,8 @@ namespace TheAftermath {
     class GBuffer {
     public:
         virtual ID3D12Resource* GetBaseColorResource() const = 0;
+        virtual DXGI_FORMAT GetBaseColorFormat() const = 0;
+        virtual D3D12_CPU_DESCRIPTOR_HANDLE GetBaseColorRTV() const = 0;
     };
 
     GBuffer* CreateGBuffer(GBufferDesc* pDesc);

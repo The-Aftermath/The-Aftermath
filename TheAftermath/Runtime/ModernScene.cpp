@@ -102,8 +102,15 @@ namespace TheAftermath {
 			void* pCbvDataBegin;
 			pSceneCB->Map(0, nullptr, reinterpret_cast<void**>(&pCbvDataBegin));
 			pSceneCB_CPU = (GBufferCB*)pCbvDataBegin;
+			// gbuffer Descriptor Handle
+			mBaseHandle = mSceneCV_CBV;
+			mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			mBaseHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+			// gbuffer base color srv rtv
+			pDevice->GetDevice()->CreateShaderResourceView(pGbuffer->GetBaseColorResource(), nullptr, mBaseHandle);
+
 			// Texture Descriptor Handle
-			mTextureDescriptorHandle = mSceneCV_CBV;
+			mTextureDescriptorHandle = mBaseHandle;
 			mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
             mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
 
@@ -212,11 +219,19 @@ namespace TheAftermath {
 		ID3D12RootSignature* pGBufferRoot;
 		ID3D12PipelineState* pGBufferPipeline;
 		//
+		
+		//
 		ID3D12DescriptorHeap* pSceneDescriptorHeap;
+
 		D3D12_CPU_DESCRIPTOR_HANDLE mSceneCV_CBV;
 		ID3D12Resource* pSceneCB;
 		GBufferCB* pSceneCB_CPU;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE mBaseHandle;
+
 		CD3DX12_CPU_DESCRIPTOR_HANDLE mTextureDescriptorHandle;
+		//
+		
 		//
 		uint32_t mVertexID = 0;
 		std::vector<SceneVertex> mSceneVertex;

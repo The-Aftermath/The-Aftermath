@@ -312,6 +312,7 @@ namespace TheAftermath {
             pDevice = pDesc->pDevice;
 
             auto baseResDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, pDesc->mWidth, pDesc->mHeight);
+            baseResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
             auto baseHeapDesc = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
             pDevice->GetDevice()->CreateCommittedResource(
                 &baseHeapDesc,
@@ -320,8 +321,17 @@ namespace TheAftermath {
                 D3D12_RESOURCE_STATE_COMMON,
                 nullptr,
                 IID_PPV_ARGS(&pBaseColor));
+
+            D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+            HeapDesc.NumDescriptors = 4;
+            HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+            HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+            pDevice->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&pGBufferRTVDescriptorHeap));
+            // base color rtv
+            pDevice->GetDevice()->CreateRenderTargetView(pBaseColor, nullptr, pGBufferRTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
         }
         ~AGBuffer() {
+            pGBufferRTVDescriptorHeap->Release();
             pBaseColor->Release();
         }
 
@@ -329,8 +339,17 @@ namespace TheAftermath {
             return pBaseColor;
         }
 
+        DXGI_FORMAT GetBaseColorFormat() const {
+            return DXGI_FORMAT_R32G32B32A32_FLOAT;
+        }
+
+        D3D12_CPU_DESCRIPTOR_HANDLE GetBaseColorRTV() const {
+            return pGBufferRTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+        }
+
         GraphicsDevice* pDevice;
         ID3D12Resource* pBaseColor;
+        ID3D12DescriptorHeap* pGBufferRTVDescriptorHeap;
     };
 
     GBuffer* CreateGBuffer(GBufferDesc* pDesc) {
