@@ -17,6 +17,13 @@ extern "C"
 
 namespace TheAftermath {
 
+    struct OutputCB
+    {
+        uint32_t index;
+        float padding[63];
+    };
+    static_assert((sizeof(OutputCB) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+
     class AGraphicsDevice : public GraphicsDevice {
     public:
         AGraphicsDevice(GraphicsDeviceDesc* pDesc) {
@@ -216,9 +223,20 @@ namespace TheAftermath {
 
         void DrawTexture(ID3D12DescriptorHeap* pSrv) {
             ID3D12DescriptorHeap* ppHeaps[] = { pSrv };
+
             pList->SetDescriptorHeaps(1, ppHeaps);
             pList->SetGraphicsRootSignature(pOutputRoot);
+            uint32_t index = 0;
+            pList->SetGraphicsRoot32BitConstant(1, index, 0);
+            pList->DrawInstanced(3, 1, 0, 0);
+        }
 
+        void DrawTexture(ID3D12DescriptorHeap* pSrv, uint32_t index) {
+            ID3D12DescriptorHeap* ppHeaps[] = { pSrv };
+
+            pList->SetDescriptorHeaps(1, ppHeaps);
+            pList->SetGraphicsRootSignature(pOutputRoot);
+            pList->SetGraphicsRoot32BitConstant(1, index, 0);
             pList->DrawInstanced(3, 1, 0, 0);
         }
 
@@ -246,6 +264,8 @@ namespace TheAftermath {
 
         ID3D12PipelineState* pOutputPipeline;
         ID3D12RootSignature* pOutputRoot;
+
+        ID3D12Resource* pOutputSRVIndex;
 
         ID3D12DescriptorHeap* p_SC_RTVHeap;
         UINT mRTVDescriptorSize;

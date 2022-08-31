@@ -26,6 +26,7 @@ namespace TheAftermath {
         virtual void BeginDraw() = 0;
         virtual void EndDraw() = 0;
         virtual void DrawTexture(ID3D12DescriptorHeap* pSrv) = 0;
+        virtual void DrawTexture(ID3D12DescriptorHeap* pSrv, uint32_t index) = 0;
     };
 
     GraphicsDevice* CreateGraphicsDevice(GraphicsDeviceDesc* pDesc);

@@ -5,8 +5,12 @@ struct VertexOutput {
 	float2 Tex: TEXCOORD;
 };
 
+cbuffer OutputCB : register(b0) {
+	uint index;
+};
+
 float4 main(VertexOutput Out) : SV_TARGET
 {
-	Texture2D<float4> myTexture = ResourceDescriptorHeap[0];
+	Texture2D<float4> myTexture = ResourceDescriptorHeap[index];
 	return myTexture.Sample(TextureSampler, Out.Tex);
 }

@@ -36,12 +36,6 @@ namespace TheAftermath {
 	public:
 		AModernScene(SceneDesc* pDesc) {
 			pDevice = pDesc->pDevice;
-			//Gbuffer
-			GBufferDesc gbufferDesc;
-			gbufferDesc.pDevice = pDevice;
-			gbufferDesc.mWidth = pDevice->GetViewportWidth();
-			gbufferDesc.mHeight = pDevice->GetViewportHeight();
-			pGbuffer = CreateGBuffer(&gbufferDesc);
 			//
 			TextureDesc texDesc;
 			texDesc.pDevice = pDevice;
@@ -102,16 +96,22 @@ namespace TheAftermath {
 			void* pCbvDataBegin;
 			pSceneCB->Map(0, nullptr, reinterpret_cast<void**>(&pCbvDataBegin));
 			pSceneCB_CPU = (GBufferCB*)pCbvDataBegin;
+			// gbuffer
+		
+			GBufferDesc gbufferDesc;
+			gbufferDesc.pDevice = pDevice;
+			gbufferDesc.mWidth = pDevice->GetViewportWidth();
+			gbufferDesc.mHeight = pDevice->GetViewportHeight();
+			pGbuffer = CreateGBuffer(&gbufferDesc);
 			// gbuffer Descriptor Handle
 			mBaseHandle = mSceneCV_CBV;
 			mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			mBaseHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
-			// gbuffer base color srv rtv
+			// gbuffer base color srv
 			pDevice->GetDevice()->CreateShaderResourceView(pGbuffer->GetBaseColorResource(), nullptr, mBaseHandle);
 
 			// Texture Descriptor Handle
 			mTextureDescriptorHandle = mBaseHandle;
-			mCBV_SRV_UVADescriptorSize = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
             mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
 
 		}

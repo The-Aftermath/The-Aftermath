@@ -4,7 +4,8 @@ struct VertexOutput {
 };
 
 #define MyRoot "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),DescriptorTable(SRV(t0)),"\
-"StaticSampler(s0,filter = FILTER_MIN_MAG_MIP_LINEAR)"
+"StaticSampler(s0,filter = FILTER_MIN_MAG_MIP_LINEAR),"\
+"RootConstants(num32BitConstants=1, b0)"
 [RootSignature(MyRoot)]
 VertexOutput main(uint VertexID : SV_VertexID) {
 	VertexOutput Out;
