@@ -110,6 +110,9 @@ namespace TheAftermath {
 				}
 			}
 
+			pOutputPipeline->Release();
+			pOutputRoot->Release();
+
 			p_SC_RTVHeap->Release();
 
 			pFence->Release();
@@ -138,15 +141,15 @@ namespace TheAftermath {
 			pFrameAllocator[index]->Reset();
 			pList->Reset(pFrameAllocator[index], pOutputPipeline);
 
-			CD3DX12_VIEWPORT viewport(0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight);
+			D3D12_VIEWPORT viewport{ 0.F, 0.F, (FLOAT)mWidth, (FLOAT)mHeight, 0.f, 1.f };
 			pList->RSSetViewports(1, &viewport);
-			CD3DX12_RECT scissorRect(0, 0, mWidth, mHeight);
+			D3D12_RECT scissorRect{ 0, 0, mWidth, mHeight };
 			pList->RSSetScissorRects(1, &scissorRect);
 			pList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			Microsoft::WRL::ComPtr<ID3D12Resource> renderTarget;
 			pSwapChain->GetBuffer(index, IID_PPV_ARGS(&renderTarget));
-			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			pList->ResourceBarrier(1, &barrier);
 
 			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(p_SC_RTVHeap->GetCPUDescriptorHandleForHeapStart(), index, mRTVDescriptorSize);
@@ -157,7 +160,7 @@ namespace TheAftermath {
 			Microsoft::WRL::ComPtr<ID3D12Resource> renderTarget;
 
 			pSwapChain->GetBuffer(index, IID_PPV_ARGS(&renderTarget));
-			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(renderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 			pList->ResourceBarrier(1, &barrier);
 			pList->Close();
 			ID3D12CommandList* pLists[] = { pList };

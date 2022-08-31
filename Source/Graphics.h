@@ -15,7 +15,9 @@ namespace TheAftermath {
 
 	struct Device : public AObject {
 		virtual ID3D12Device* GetDevice() const = 0;
-		
+		virtual void BeginDraw() = 0;
+		virtual void EndDraw() = 0;
+		virtual void Present() = 0;
 	};
 
 	Device* CreateDevice(DeviceDesc* pDesc);
