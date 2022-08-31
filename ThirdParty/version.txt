@@ -1,2 +1,1 @@
 D3D12MemoryAllocator : 2.0.1
-FidelityFX-FSR2 : 2.0.1a
