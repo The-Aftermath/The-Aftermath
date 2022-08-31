@@ -1,4 +1,6 @@
 #include "Graphics.h"
+#include "Utility.h"
+#include "d3dx12.h"
 #include <combaseapi.h>
 #include <winerror.h>
 #include <exception>
@@ -78,6 +80,24 @@ namespace TheAftermath {
 			//
 			mWidth = pDesc->mWidth;
 			mHeight = pDesc->mHeight;
+			// pipeline
+			auto OutputVS = ReadData(L"OutputVS.cso");
+			auto OutputPS = ReadData(L"OutputPS.cso");
+			pDevice->CreateRootSignature(0, OutputVS.data(), OutputVS.size(), IID_PPV_ARGS(&pOutputRoot));
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+			psoDesc.InputLayout = { nullptr, 0 };
+			psoDesc.pRootSignature = pOutputRoot;
+			psoDesc.VS = { OutputVS.data(), OutputVS.size() };
+			psoDesc.PS = { OutputPS.data(), OutputPS.size() };
+			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			psoDesc.SampleMask = 0xffffffff;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 1;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			psoDesc.SampleDesc.Count = 1;
+			pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pOutputPipeline));
 		}
 		~ADevice() {
 			const UINT64 fenceValue = m_fenceValues[m_backBufferIndex];
@@ -181,6 +201,9 @@ namespace TheAftermath {
 
 		uint32_t mWidth;
 		uint32_t mHeight;
+
+		ID3D12PipelineState* pOutputPipeline;
+		ID3D12RootSignature* pOutputRoot;
 	};
 
 	Device* CreateDevice(DeviceDesc* pDesc) {
