@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <vector>
 #include <DirectXMath.h>
+#include <cstring>
 namespace TheAftermath {
 
 	struct SceneVertex {
@@ -113,9 +114,32 @@ namespace TheAftermath {
 			// Texture Descriptor Handle
 			mTextureDescriptorHandle = mBaseHandle;
             mTextureDescriptorHandle.Offset(1, mCBV_SRV_UVADescriptorSize);
+			// cmd
+			_CreateCmd();
 
+			auto vertexResDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(SceneVertex) * 10000);
+            auto vertexHeapDesc = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+            pDevice->GetDevice()->CreateCommittedResource(
+                &vertexHeapDesc,
+                D3D12_HEAP_FLAG_NONE,
+                &vertexResDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&pVertexRes));
+			
+            pVertexRes->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin));
 		}
 		~AModernScene() {
+
+			pVertexRes->Unmap(0, nullptr);
+			pVertexRes->Release();
+
+			pFrameAllocator[0]->Release();
+			pFrameAllocator[1]->Release();
+			pFrameAllocator[2]->Release();
+			pList->Release();
+
 			pSceneCB->Unmap(0, nullptr);
 			pSceneCB->Release();
 			pSceneDescriptorHeap->Release();
@@ -193,6 +217,20 @@ namespace TheAftermath {
 			pSceneCB_CPU->v = DirectX::XMFLOAT4X4(&native[0]);
 			pSceneCB_CPU->p = DirectX::XMFLOAT4X4(&native[16]);
 			pSceneCB_CPU->light = DirectX::XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+
+			auto frameIndex = pDevice->GetFrameIndex();
+			pFrameAllocator[frameIndex]->Reset();
+			pList->Reset(pFrameAllocator[frameIndex], pGBufferPipeline);
+
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(pGbuffer->GetBaseColorResource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			pList->ResourceBarrier(1, &barrier);
+
+			barrier = CD3DX12_RESOURCE_BARRIER::Transition(pGbuffer->GetBaseColorResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			pList->ResourceBarrier(1, &barrier);
+
+			pList->Close();
+			ID3D12CommandList* ppLists[] = { pList };
+			pDevice->GetImmediateCommandQueue()->ExecuteCommandLists(1, ppLists);
 		}
 
 		void Update() {
@@ -208,6 +246,17 @@ namespace TheAftermath {
 			pDevice->Present();
 		}
 
+		void _CreateCmd() {
+			for (uint32_t n = 0; n < 3; ++n)
+			{
+				pDevice->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pFrameAllocator[n]));
+			}
+			ID3D12Device7* device;
+			pDevice->GetDevice()->QueryInterface(&device);
+			device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&pList));
+			device->Release();
+		}
+
 		UINT mCBV_SRV_UVADescriptorSize;
 
 		GraphicsDevice* pDevice;
@@ -219,7 +268,8 @@ namespace TheAftermath {
 		ID3D12RootSignature* pGBufferRoot;
 		ID3D12PipelineState* pGBufferPipeline;
 		//
-		
+		ID3D12CommandAllocator* pFrameAllocator[3];
+		ID3D12GraphicsCommandList8* pList;
 		//
 		ID3D12DescriptorHeap* pSceneDescriptorHeap;
 
@@ -231,7 +281,8 @@ namespace TheAftermath {
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE mTextureDescriptorHandle;
 		//
-		
+		ID3D12Resource* pVertexRes;
+		UINT8* pVertexDataBegin;
 		//
 		uint32_t mVertexID = 0;
 		std::vector<SceneVertex> mSceneVertex;
