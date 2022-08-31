@@ -19,6 +19,7 @@ namespace TheAftermath {
         virtual IDXGISwapChain* GetSwapChain() const = 0;
         virtual ID3D12CommandQueue* GetImmediateCommandQueue() const = 0;
         virtual ID3D12CommandAllocator* GetActiveAllocator() const = 0;
+        virtual ID3D12GraphicsCommandList* GetActiveList() const = 0;
         virtual uint32_t GetFrameIndex() const = 0;
         virtual void Present() = 0;
         virtual void Wait() = 0;

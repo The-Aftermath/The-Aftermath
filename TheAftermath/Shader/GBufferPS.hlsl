@@ -11,7 +11,13 @@ cbuffer GBufferCB : register(b0) {
 	float4 Light;
 };
 
-float4 main(VertexOutput vOut) : SV_TARGET
+struct GBuffer {
+	float4 BaseColor : SV_TARGET0;
+};
+
+void main(VertexOutput vOut)
 {
-	return float4(1,1,1,1);
+	GBuffer gbuffer;
+
+	gbuffer.BaseColor = float4(1.f, 1.f, 1.f, 1.f);
 }
