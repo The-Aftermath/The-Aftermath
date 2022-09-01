@@ -31,17 +31,21 @@ namespace TheAftermath {
 		virtual ID3D12DescriptorHeap* GetCBV_SRV_UAVDescriptorHeap() const = 0;
 		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const = 0;
 	};
+
 	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc);
 
 	struct GBufferDesc {
 		Device* pDevice = nullptr;
+		DescriptorHeapPool* pPool = nullptr;
 		uint32_t mWidth = 800;
 		uint32_t mHeight = 600;
 	};
-	struct GBuffer : public AObject {
 
+	struct GBuffer : public AObject {
+		virtual ID3D12Resource* GetBaseColorResource() const = 0;
 	};
 
+	GBuffer* CreateGBuffer(GBufferDesc* pDesc);
 
 	struct GraphicsPipelineStateDesc {
 		Device* pDevice = nullptr;
@@ -56,6 +60,7 @@ namespace TheAftermath {
 		virtual ID3D12PipelineState* GetPipelineState() const = 0;
 		virtual ID3D12RootSignature* GetRootSignature() const = 0;
 	};
+
 	GraphicsPipelineState* CreateGraphicsPipelineState(GraphicsPipelineStateDesc* pDesc);
 
 	struct DynamicVertexBufferDesc {
@@ -65,4 +70,6 @@ namespace TheAftermath {
 	struct DynamicVertexBuffer : public AObject {
 
 	};
+
+	DynamicVertexBuffer* CreateDynamicVertexBuffer(DynamicVertexBufferDesc* pDesc);
 }

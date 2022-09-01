@@ -8,14 +8,25 @@ namespace TheAftermath {
 			if (!pDevice) {
 				throw std::exception("Device is nullptr.");
 			}
+			// DescriptorHeapPool
+			DescriptorHeapPoolDesc poolDesc;
+			poolDesc.pDevice = pDevice;
+			pPool = CreateDescriptorHeapPool(&poolDesc);
+			// gbuffer
+			GBufferDesc gbufferDesc;
+			gbufferDesc.pDevice = pDevice;
+			gbufferDesc.mWidth = pDesc->mWidth;
+			gbufferDesc.mHeight = pDesc->mHeight;
+			pGBuffer = CreateGBuffer(&gbufferDesc);
 
 		}
 
-		~AScene() {}
-
-		void Release() {
-			delete this;
+		~AScene() {
+			RemoveObject(pGBuffer);
+			RemoveObject(pPool);
 		}
+
+		void Release() { delete this; }
 
 		void Update() {
 			pDevice->BeginDraw();
@@ -24,6 +35,8 @@ namespace TheAftermath {
 		}
 
 		Device* pDevice;
+		DescriptorHeapPool* pPool;
+		GBuffer* pGBuffer;
 	};
 
 	Scene* CreateScene(SceneDesc* pDesc) {

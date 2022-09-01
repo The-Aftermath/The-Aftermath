@@ -216,21 +216,86 @@ namespace TheAftermath {
 
 	struct ADescriptorHeapPool : public DescriptorHeapPool {
 		ADescriptorHeapPool(DescriptorHeapPoolDesc* pDesc) {
+			pDevice = pDesc->pDevice;
+			if (!pDevice) {
+				throw std::exception("Device is nullptr.");
+			}
 
+			D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+			HeapDesc.NumDescriptors = 10000;
+			HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			pDevice->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&pCBV_SRV_UAVHeap));
+
+			HeapDesc.NumDescriptors = 100;
+			HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+			pDevice->GetDevice()->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&pSamplerHeap));
 		}
 
-		~ADescriptorHeapPool() {}
+		~ADescriptorHeapPool() {
+			pCBV_SRV_UAVHeap->Release();
+			pSamplerHeap->Release();
+		}
 
 		void Release() { delete this; }
 		virtual ID3D12DescriptorHeap* GetCBV_SRV_UAVDescriptorHeap() const {
-			return nullptr;
+			return pCBV_SRV_UAVHeap;
 		}
 		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const {
-			return nullptr;
+			return pSamplerHeap;
 		}
+
+		Device* pDevice;
+		ID3D12DescriptorHeap* pCBV_SRV_UAVHeap;
+		ID3D12DescriptorHeap* pSamplerHeap;
 	};
 	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc) {
-		return nullptr;
+		return new ADescriptorHeapPool(pDesc);
+	}
+
+	struct AGBuffer : public GBuffer {
+		AGBuffer(GBufferDesc* pDesc) {
+			pDevice = pDesc->pDevice;
+			if (!pDevice) {
+				throw std::exception("Device is nullptr.");
+			}
+
+            auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+            auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, pDesc->mWidth, pDesc->mHeight);
+			resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+            pDevice->GetDevice()->CreateCommittedResource(
+                &heapProp,
+                D3D12_HEAP_FLAG_NONE,
+                &resDesc,
+				D3D12_RESOURCE_STATE_COMMON,
+                nullptr,
+                IID_PPV_ARGS(&pBaseColor));
+			//rtv heap
+			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+			rtvHeapDesc.NumDescriptors = 4;
+			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			pDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&pGBufferRTVDescriptorHeap));
+			// base color rtv srv
+			pDevice->GetDevice()->CreateRenderTargetView(pBaseColor, nullptr, pGBufferRTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+			
+		}
+		~AGBuffer() {
+			pGBufferRTVDescriptorHeap->Release();
+			pBaseColor->Release();
+		}
+		void Release() { delete this; }
+		ID3D12Resource* GetBaseColorResource() const {
+			return pBaseColor;
+		}
+
+		Device* pDevice;
+		ID3D12DescriptorHeap* pGBufferRTVDescriptorHeap;
+		ID3D12Resource* pBaseColor;
+	};
+
+	GBuffer* CreateGBuffer(GBufferDesc* pDesc) {
+		return new AGBuffer(pDesc);
 	}
 
 	struct AGraphicsPipelineState : public GraphicsPipelineState {

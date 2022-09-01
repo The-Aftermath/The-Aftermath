@@ -58,6 +58,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			scene->Update();
 		}
 	}
+	TheAftermath::RemoveObject(scene);
 	TheAftermath::RemoveObject(device);
 
 	return 0;
