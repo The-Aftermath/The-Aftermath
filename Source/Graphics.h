@@ -15,10 +15,13 @@ namespace TheAftermath {
 	};
 
 	struct Device : public AObject {
-		virtual ID3D12Device* GetDevice() const = 0;
+		virtual ID3D12Device4* GetDevice() const = 0;
+		virtual ID3D12CommandQueue* GetCmdQueue() const = 0;
 		virtual void BeginDraw() = 0;
 		virtual void EndDraw() = 0;
 		virtual void Present() = 0;
+		virtual uint32_t GetFrameCount() const = 0;
+		virtual uint32_t GetFrameIndex() const = 0;
 	};
 
 	Device* CreateDevice(DeviceDesc* pDesc);
@@ -30,6 +33,10 @@ namespace TheAftermath {
 	struct DescriptorHeapPool : public AObject {
 		virtual ID3D12DescriptorHeap* GetCBV_SRV_UAVDescriptorHeap() const = 0;
 		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const = 0;
+		virtual D3D12_CPU_DESCRIPTOR_HANDLE AllocCBV_SRV_UAVDescriptor() = 0;
+		virtual D3D12_CPU_DESCRIPTOR_HANDLE AllocSamplerDescriptor() = 0;
+		virtual void FreeCBV_SRV_UAVDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) = 0;
+		virtual void FreeSamplerDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) = 0;
 	};
 
 	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc);
@@ -43,6 +50,11 @@ namespace TheAftermath {
 
 	struct GBuffer : public AObject {
 		virtual ID3D12Resource* GetBaseColorResource() const = 0;
+		virtual DXGI_FORMAT GetBaseColorFormat() const = 0;
+		virtual D3D12_CPU_DESCRIPTOR_HANDLE GetBaseColorRTV() const = 0;
+
+		virtual uint32_t GetBufferWidth() const = 0;
+		virtual uint32_t GetBufferHeight() const = 0;
 	};
 
 	GBuffer* CreateGBuffer(GBufferDesc* pDesc);

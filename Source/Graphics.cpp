@@ -1,10 +1,13 @@
 #include "Graphics.h"
 #include "Utility.h"
+
 #include "d3dx12.h"
+
 #include <combaseapi.h>
 #include <winerror.h>
 #include <exception>
 #include <wrl.h>
+#include <vector>
 
 #define FRAME_COUNT 3
 namespace TheAftermath {
@@ -132,9 +135,13 @@ namespace TheAftermath {
 
 		void Release() { delete this; }
 
-		ID3D12Device* GetDevice() const {
+		ID3D12Device4* GetDevice() const {
 			return pDevice;
 		}
+		ID3D12CommandQueue* GetCmdQueue() const {
+			return pMainQueue;
+		}
+
 
 		virtual void BeginDraw() {
 			auto index = m_backBufferIndex;
@@ -183,6 +190,14 @@ namespace TheAftermath {
 			}
 
 			m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
+		}
+
+		uint32_t GetFrameCount() const {
+			return FRAME_COUNT;
+		}
+
+		uint32_t GetFrameIndex() const {
+			return pSwapChain->GetCurrentBackBufferIndex();
 		}
 
 		ID3D12Device9* pDevice;
@@ -244,10 +259,55 @@ namespace TheAftermath {
 		virtual ID3D12DescriptorHeap* GetSamplerDescriptorHeap() const {
 			return pSamplerHeap;
 		}
+		D3D12_CPU_DESCRIPTOR_HANDLE AllocCBV_SRV_UAVDescriptor() {
+			auto pos = getfirstPosAndUpdate(mCBV_SRV_UAV);
+			auto CBV_SRV_UAV_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(pCBV_SRV_UAVHeap->GetCPUDescriptorHandleForHeapStart(), pos, CBV_SRV_UAV_size);
+			return pCBV_SRV_UAVHeap->GetCPUDescriptorHandleForHeapStart();
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE AllocSamplerDescriptor() {
+			auto pos = getfirstPosAndUpdate(mSampler);
+			auto sampler_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(pSamplerHeap->GetCPUDescriptorHandleForHeapStart(), pos, sampler_size);
+			return handle;
+		}
+		void FreeCBV_SRV_UAVDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+			auto start = pCBV_SRV_UAVHeap->GetCPUDescriptorHandleForHeapStart();
+			auto offset = handle.ptr - start.ptr;
+			auto CBV_SRV_UAV_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			auto index = offset / CBV_SRV_UAV_size;
+			mCBV_SRV_UAV[index] = false;
+		}
+
+		void FreeSamplerDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+			auto start = pSamplerHeap->GetCPUDescriptorHandleForHeapStart();
+			auto offset = handle.ptr - start.ptr;
+			auto sampler_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			auto index = offset / sampler_size;
+			mSampler[index] = false;
+		}
+
+		size_t getfirstPosAndUpdate(std::vector<bool>& mVec) {
+			size_t pos = mVec.size();
+
+			for (size_t i = 0;i < pos; ++i) {
+				if (!mVec[i]) {
+					mVec[i] = true;
+					return i;
+				}
+			}
+
+			mVec.push_back(true);
+			return pos;
+		}
 
 		Device* pDevice;
 		ID3D12DescriptorHeap* pCBV_SRV_UAVHeap;
 		ID3D12DescriptorHeap* pSamplerHeap;
+
+		std::vector<bool> mCBV_SRV_UAV;
+		std::vector<bool> mSampler;
 	};
 	DescriptorHeapPool* CreateDescriptorHeapPool(DescriptorHeapPoolDesc* pDesc) {
 		return new ADescriptorHeapPool(pDesc);
@@ -256,8 +316,12 @@ namespace TheAftermath {
 	struct AGBuffer : public GBuffer {
 		AGBuffer(GBufferDesc* pDesc) {
 			pDevice = pDesc->pDevice;
+			pPool = pDesc->pPool;
 			if (!pDevice) {
 				throw std::exception("Device is nullptr.");
+			}
+			if (!pPool) {
+				throw std::exception("DescriptorHeapPool is nullptr.");
 			}
 
             auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -278,9 +342,14 @@ namespace TheAftermath {
 			pDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&pGBufferRTVDescriptorHeap));
 			// base color rtv srv
 			pDevice->GetDevice()->CreateRenderTargetView(pBaseColor, nullptr, pGBufferRTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-			
+			mBaseColorSRV = pDesc->pPool->AllocCBV_SRV_UAVDescriptor();
+			pDevice->GetDevice()->CreateShaderResourceView(pBaseColor, nullptr, mBaseColorSRV);
+
+			mWidth = pDesc->mWidth;
+			mHeight = pDesc->mHeight;
 		}
 		~AGBuffer() {
+			pPool->FreeCBV_SRV_UAVDescriptor(mBaseColorSRV);
 			pGBufferRTVDescriptorHeap->Release();
 			pBaseColor->Release();
 		}
@@ -288,10 +357,29 @@ namespace TheAftermath {
 		ID3D12Resource* GetBaseColorResource() const {
 			return pBaseColor;
 		}
+		DXGI_FORMAT GetBaseColorFormat() const {
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE GetBaseColorRTV() const {
+			return pGBufferRTVDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		}
+
+		uint32_t GetBufferWidth() const {
+			return mWidth;
+		}
+
+		uint32_t GetBufferHeight() const {
+			return mHeight;
+		}
 
 		Device* pDevice;
+		DescriptorHeapPool* pPool;
 		ID3D12DescriptorHeap* pGBufferRTVDescriptorHeap;
 		ID3D12Resource* pBaseColor;
+		D3D12_CPU_DESCRIPTOR_HANDLE mBaseColorSRV;
+		uint32_t mWidth;
+		uint32_t mHeight;
 	};
 
 	GBuffer* CreateGBuffer(GBufferDesc* pDesc) {
