@@ -1,5 +1,7 @@
 #include <Windows.h>
 
+#include "bgfx/bgfx.h"
+
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
