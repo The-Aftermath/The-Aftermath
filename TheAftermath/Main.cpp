@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include "AObject.h"
 #include "GameWindow.h"
 #include "bgfx/bgfx.h"
 
@@ -26,5 +27,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 
     gamewindow->Run(Draw);
+
+    TheAftermath::RemoveObject(gamewindow);
     return 0;
 }
