@@ -12,6 +12,7 @@ add_executable(TheAftermathProject WIN32
 	"AObject.cpp"
 	"Utility.h"
 	"Utility.cpp"
+	"Vertex.h"
 
 	"Shader/OutputVS.hlsl"
 	"Shader/OutputPS.hlsl"

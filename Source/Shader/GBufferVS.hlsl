@@ -1,4 +1,4 @@
-#define GBufferRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),CBV(b0)"
+#define GBufferRoot "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)"
 
 struct VertexInput {
 	float3 Pos : POSITION;
@@ -12,12 +12,6 @@ struct VertexOutput {
 	float3 WNormal : NORMAL;
 	float2 UV0 : TEXCOORD;
 	uint VertexID : ID;
-};
-
-cbuffer GBufferCB : register(b0) {
-	matrix V;
-	matrix P;
-	float4 Light;
 };
 
 [RootSignature(GBufferRoot)]

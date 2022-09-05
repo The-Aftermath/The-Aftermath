@@ -8,6 +8,7 @@
 #include <exception>
 #include <wrl.h>
 #include <vector>
+#include <cstring>
 
 #define FRAME_COUNT 3
 namespace TheAftermath {
@@ -200,6 +201,15 @@ namespace TheAftermath {
 			return pSwapChain->GetCurrentBackBufferIndex();
 		}
 
+		void DrawTexture(ID3D12DescriptorHeap* pSrv, uint32_t index) {
+			ID3D12DescriptorHeap* ppHeaps[] = { pSrv };
+
+			pList->SetDescriptorHeaps(1, ppHeaps);
+			pList->SetGraphicsRootSignature(pOutputRoot);
+			pList->SetGraphicsRoot32BitConstant(0, index, 0);
+			pList->DrawInstanced(3, 1, 0, 0);
+		}
+
 		ID3D12Device9* pDevice;
 
 		ID3D12CommandAllocator* pFrameAllocator[FRAME_COUNT];
@@ -273,19 +283,26 @@ namespace TheAftermath {
 			return handle;
 		}
 		void FreeCBV_SRV_UAVDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+			mCBV_SRV_UAV[GetCBV_SRV_UAVIndex(handle)] = false;
+		}
+
+		void FreeSamplerDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+			mSampler[GetSamplerIndex(handle)] = false;
+		}
+
+		virtual uint32_t GetCBV_SRV_UAVIndex(D3D12_CPU_DESCRIPTOR_HANDLE handle) const {
 			auto start = pCBV_SRV_UAVHeap->GetCPUDescriptorHandleForHeapStart();
 			auto offset = handle.ptr - start.ptr;
 			auto CBV_SRV_UAV_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			auto index = offset / CBV_SRV_UAV_size;
-			mCBV_SRV_UAV[index] = false;
+			return index;
 		}
-
-		void FreeSamplerDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE handle) {
+		virtual uint32_t GetSamplerIndex(D3D12_CPU_DESCRIPTOR_HANDLE handle) const {
 			auto start = pSamplerHeap->GetCPUDescriptorHandleForHeapStart();
 			auto offset = handle.ptr - start.ptr;
 			auto sampler_size = pDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 			auto index = offset / sampler_size;
-			mSampler[index] = false;
+			return index;
 		}
 
 		size_t getfirstPosAndUpdate(std::vector<bool>& mVec) {
@@ -444,14 +461,44 @@ namespace TheAftermath {
 				throw std::exception("Device is nullptr.");
 			}
 
+			auto vertexResDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(Vertex) * 10000);
+			auto vertexHeapDesc = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+			pDevice->GetDevice()->CreateCommittedResource(&vertexHeapDesc, D3D12_HEAP_FLAG_NONE, &vertexResDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&pVB));
+			pVB->Map(0, nullptr, reinterpret_cast<void**>(&pVertexDataBegin));
 		}
 
-		~ADynamicVertexBuffer() {}
+		~ADynamicVertexBuffer() {
+			pVB->Unmap(0, nullptr);
+			pVB->Release();
+		}
 
 		void Release() {
 			delete this;
 		}
 
+		virtual ID3D12Resource* GetVertexBuffer() const {
+			return pVB;
+		}
+		virtual uint32_t GetVertexCount() const {
+			return mVertices.size();
+		}
+		virtual void Copy(const std::vector<Vertex>& vertices) {
+			mVertices = vertices;
+			memcpy(pVertexDataBegin, mVertices.data(), mVertices.size() * sizeof(Vertex));
+		}
+
+		virtual void AddVertex(const std::vector<Vertex>& verteics) {
+			mVertices.insert(mVertices.end(), verteics.begin(), verteics.end());
+			memcpy(pVertexDataBegin, mVertices.data(), mVertices.size() * sizeof(Vertex));
+		}
+
 		Device* pDevice;
+		ID3D12Resource* pVB;
+		std::vector<Vertex> mVertices;
+		UINT8* pVertexDataBegin;
 	};
+
+	DynamicVertexBuffer* CreateDynamicVertexBuffer(DynamicVertexBufferDesc* pDesc) {
+		return new ADynamicVertexBuffer(pDesc);
+	}
 }

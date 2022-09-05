@@ -1,4 +1,4 @@
-#define MyRoot "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),DescriptorTable(SRV(t0)),"\
+#define MyRoot "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),"\
 "StaticSampler(s0,filter = FILTER_MIN_MAG_MIP_LINEAR),"\
 "RootConstants(num32BitConstants=1, b0)"
 
