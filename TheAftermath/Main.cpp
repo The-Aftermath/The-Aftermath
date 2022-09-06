@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "AObject.h"
 #include "GameWindow.h"
+#include "Device.h"
 #include "bgfx/bgfx.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -24,10 +25,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     gamewindowDesc.mHinstance = hInstance;
     gamewindowDesc.pFunction = WndProc;
     auto gamewindow = TheAftermath::CreateGameWindow(&gamewindowDesc);
-
+    TheAftermath::DeviceDesc deviceDesc;
+    deviceDesc.mHwnd = gamewindow->GetHWND();
+    deviceDesc.mWidth = 800;
+    deviceDesc.mHeight = 600;
+    auto device = TheAftermath::CreateDevice(&deviceDesc);
 
     gamewindow->Run(Draw);
 
+    TheAftermath::RemoveObject(device);
     TheAftermath::RemoveObject(gamewindow);
     return 0;
 }
