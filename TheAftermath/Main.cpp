@@ -2,7 +2,6 @@
 #include "AObject.h"
 #include "GameWindow.h"
 #include "Device.h"
-#include "bgfx/bgfx.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
@@ -12,8 +11,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Draw() {
-
+void Draw(TheAftermath::Device* pDevice) {
+    pDevice->Present();
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd) {
@@ -31,7 +30,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     deviceDesc.mHeight = 600;
     auto device = TheAftermath::CreateDevice(&deviceDesc);
 
-    gamewindow->Run(Draw);
+    gamewindow->Run(Draw, device);
 
     TheAftermath::RemoveObject(device);
     TheAftermath::RemoveObject(gamewindow);

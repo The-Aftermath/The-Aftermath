@@ -20,6 +20,7 @@ namespace TheAftermath {
 	struct GameWindow : public AObject {
 		virtual HWND GetHWND() const = 0;
 		virtual int GetCmdShow() const = 0;
+
 		template <typename Function, typename... Args>
 		void Run(Function&& f, Args&&... args) {
 			ShowWindow(GetHWND(), GetCmdShow());
