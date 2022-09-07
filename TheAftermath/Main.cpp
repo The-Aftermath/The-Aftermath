@@ -2,6 +2,8 @@
 #include "AObject.h"
 #include "GameWindow.h"
 #include "Device.h"
+#include "Scene.h"
+#include "Vertex.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
