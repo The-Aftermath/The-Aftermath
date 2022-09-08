@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Vertex.h"
 #include "CommandBuffer.h"
+#include "Shader.h"
 
 #include "json.hpp"
 #include "d3dx12.h"
@@ -19,6 +20,11 @@ namespace TheAftermath {
 	
 	pipeline getGBufferPipeline(ID3D12Device *pDevice) {
 		pipeline pso;
+
+		auto GBufferVS = LoadCSO(L"GBufferVS.cso");
+		auto GBufferPS = LoadCSO(L"GBufferPS.cso");
+		pDevice->CreateRootSignature(0, GBufferVS.data(), GBufferVS.size(), IID_PPV_ARGS(&pso.pRootSignature));
+
 		D3D12_INPUT_ELEMENT_DESC gubfferInputDesc[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -28,9 +34,9 @@ namespace TheAftermath {
 		};
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 		psoDesc.InputLayout = { gubfferInputDesc, 4 };
-		//psoDesc.pRootSignature = pGBufferRoot;
-		//psoDesc.VS = { GBufferVS.data(), GBufferVS.size() };
-		//psoDesc.PS = { GBufferPS.data(), GBufferPS.size() };
+		psoDesc.pRootSignature = pso.pRootSignature;
+		psoDesc.VS = { GBufferVS.data(), GBufferVS.size() };
+		psoDesc.PS = { GBufferPS.data(), GBufferPS.size() };
 		psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.SampleMask = 0xffffffff;
@@ -50,8 +56,11 @@ namespace TheAftermath {
 			CommandBufferDesc commandBufferDesc;
 			commandBufferDesc.pDevice = pDevice;
 			pCommandBuffer = CreateCommandBuffer(&commandBufferDesc);
+			mGbufferPipeline = getGBufferPipeline(pDevice->GetDevice());
 		}
 		~AScene() {
+			mGbufferPipeline.pPSO->Release();
+			mGbufferPipeline.pRootSignature->Release();
 			RemoveObject(pCommandBuffer);
 		}
 		void Release() { delete this; }
