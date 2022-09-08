@@ -48,6 +48,15 @@ namespace TheAftermath {
 
 		return pso;
 	}
+	ID3D12DescriptorHeap* getGBufferDescriptorHeap(ID3D12Device* pDevice) {
+		D3D12_DESCRIPTOR_HEAP_DESC HeapDesc = {};
+		HeapDesc.NumDescriptors = 10000;
+		HeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		HeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		ID3D12DescriptorHeap* pHeap;
+		pDevice->CreateDescriptorHeap(&HeapDesc, IID_PPV_ARGS(&pHeap));
+		return pHeap;
+	}
 
 	struct AScene : public Scene {
 		AScene(SceneDesc* pDecs) {
@@ -57,8 +66,10 @@ namespace TheAftermath {
 			commandBufferDesc.pDevice = pDevice;
 			pCommandBuffer = CreateCommandBuffer(&commandBufferDesc);
 			mGbufferPipeline = getGBufferPipeline(pDevice->GetDevice());
+			pGbufferDescriptorHeap = getGBufferDescriptorHeap(pDevice->GetDevice());
 		}
 		~AScene() {
+			pGbufferDescriptorHeap->Release();
 			mGbufferPipeline.pPSO->Release();
 			mGbufferPipeline.pRootSignature->Release();
 			RemoveObject(pCommandBuffer);
@@ -86,6 +97,8 @@ namespace TheAftermath {
 		std::vector<uint32_t> mVisibleIndex;
 
 		pipeline mGbufferPipeline;
+
+		ID3D12DescriptorHeap* pGbufferDescriptorHeap;
 	};
 
 	Scene* CreateScene(SceneDesc* pDecs) {
