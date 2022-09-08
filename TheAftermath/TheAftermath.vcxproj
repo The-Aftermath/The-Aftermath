@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandBuffer.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -18,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AObject.h" />
+    <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="Scene.h" />

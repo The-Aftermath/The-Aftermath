@@ -5,7 +5,7 @@
 namespace TheAftermath {
 
 	struct SceneDesc {
-		Device* pDevice;
+		Device* pDevice = nullptr;
 	};
 
 	struct Scene : public AObject {

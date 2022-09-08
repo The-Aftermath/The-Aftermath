@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "Vertex.h"
+#include "CommandBuffer.h"
 #include "json.hpp"
 #include <vector>
 
@@ -9,6 +10,13 @@ namespace TheAftermath {
 	struct AScene : public Scene {
 		AScene(SceneDesc* pDecs) {
 			pDevice = pDecs->pDevice;
+
+			CommandBufferDesc commandBufferDesc;
+			commandBufferDesc.pDevice = pDevice;
+			pCommandBuffer = CreateCommandBuffer(&commandBufferDesc);
+		}
+		~AScene() {
+			RemoveObject(pCommandBuffer);
 		}
 		void Release() { delete this; }
 
@@ -22,6 +30,8 @@ namespace TheAftermath {
 		}
 
 		Device* pDevice;
+
+		CommandBuffer* pCommandBuffer;
 
 		std::vector<Vertex> mAllVertex;
 		std::vector<uint32_t> mAllIndex;
