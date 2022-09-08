@@ -2,6 +2,13 @@
 #include <dxgi1_6.h>
 #include <combaseapi.h>
 #include <d3d12sdklayers.h>
+
+extern "C"
+{
+	__declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
+	__declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\";
+}
+
 namespace TheAftermath {
 
 	ID3D12Device7* getDevice() {
@@ -94,6 +101,22 @@ namespace TheAftermath {
 
 		ID3D12Device7* GetDevice() const {
 			return pDevice;
+		}
+
+		void Execute(ID3D12CommandList* pList) {
+			auto type = pList->GetType();
+			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+				ID3D12CommandList* pLists[] = { pList };
+				pGraphicsQueue->ExecuteCommandLists(1, pLists);
+			}
+			else if (type == D3D12_COMMAND_LIST_TYPE_COPY) {
+				ID3D12CommandList* pLists[] = { pList };
+				pCopyQueue->ExecuteCommandLists(1, pLists);
+			}
+			else if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE) {
+				ID3D12CommandList* pLists[] = { pList };
+				pComputeQueue->ExecuteCommandLists(1, pLists);
+			}
 		}
 
 		void Wait() {
