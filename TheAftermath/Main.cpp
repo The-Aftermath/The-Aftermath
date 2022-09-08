@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Vertex.h"
 #include "CommandBuffer.h"
+#include "Shader.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
