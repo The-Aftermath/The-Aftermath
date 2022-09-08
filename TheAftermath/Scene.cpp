@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
-
+#include "Vertex.h"
+#include "json.hpp"
 #include <vector>
 
 namespace TheAftermath {
@@ -13,12 +14,20 @@ namespace TheAftermath {
 
 		void Update() {
 
+
+			pDevice->Present();
 		}
 		void LoadModel(const wchar_t* modelFilePath) {
 
 		}
 
 		Device* pDevice;
+
+		std::vector<Vertex> mAllVertex;
+		std::vector<uint32_t> mAllIndex;
+
+		std::vector<Vertex> mVisibleVertex;
+		std::vector<uint32_t> mVisibleIndex;
 	};
 
 	Scene* CreateScene(SceneDesc* pDecs) {
