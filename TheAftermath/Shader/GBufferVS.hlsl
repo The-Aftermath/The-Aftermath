@@ -14,7 +14,7 @@ struct VertexOutput {
 	uint VertexID : ID;
 };
 
-cbuffer GBufferCB {
+struct GBufferCB {
 	matrix V;
 	matrix P;
 	float4 Light;

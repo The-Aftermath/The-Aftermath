@@ -5,7 +5,7 @@ struct VertexOutput {
 	uint VertexID : ID;
 };
 
-cbuffer GBufferCB {
+struct GBufferCB {
 	matrix V;
 	matrix P;
 	float4 Light;
@@ -15,9 +15,9 @@ struct GBuffer {
 	float4 BaseColor : SV_TARGET0;
 };
 
-void main(VertexOutput vOut)
+GBuffer main(VertexOutput vOut)
 {
 	GBuffer gbuffer;
-
 	gbuffer.BaseColor = float4(1.f, 1.f, 1.f, 1.f);
+	return gbuffer;
 }

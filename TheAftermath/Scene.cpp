@@ -5,6 +5,7 @@
 
 #include "json.hpp"
 #include "d3dx12.h"
+#include "dxcapi.h"
 
 #include <dxgi1_6.h>
 #include <vector>
