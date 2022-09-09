@@ -4,9 +4,9 @@
 #include <cstdint>
 namespace TheAftermath {
 	struct SceneDesc {
-		Device* pDevice;
-		uint32_t mWidth;
-		uint32_t mHeight;
+		Device* pDevice = nullptr;
+		uint32_t mWidth = 800;
+		uint32_t mHeight = 600;
 	};
 
 	class Scene : public AObject {

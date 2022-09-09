@@ -7,6 +7,9 @@ namespace TheAftermath {
 
 			mWidth = pDesc->mWidth;
 			mHeight = pDesc->mHeight;
+
+			// init rendering
+
 		}
 
 		~AScene() {
