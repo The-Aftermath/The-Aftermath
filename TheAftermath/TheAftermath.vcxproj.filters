@@ -16,6 +16,9 @@
     <Filter Include="Resource Files\Shader">
       <UniqueIdentifier>{03a2b2a0-bead-4f19-9245-04c11e60f520}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shader\common">
+      <UniqueIdentifier>{bcdc56b3-007c-4261-9e87-df79db673d86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -44,5 +47,13 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\common\common.sh">
+      <Filter>Resource Files\Shader\common</Filter>
+    </None>
+    <None Include="Shader\common\shaderlib.sh">
+      <Filter>Resource Files\Shader\common</Filter>
+    </None>
   </ItemGroup>
 </Project>
