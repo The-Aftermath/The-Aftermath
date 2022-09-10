@@ -8,6 +8,9 @@ namespace TheAftermath {
 		ADevice(DeviceDesc* pDesc) {
 			bgfx_init_t init;
 			bgfx_init_ctor(&init);
+#ifdef _DEBUG
+			init.debug = true;
+#endif // _DEBUG
 			init.type = BGFX_RENDERER_TYPE_DIRECT3D12;
 			init.vendorId = BGFX_PCI_ID_NONE;
 			init.platformData.nwh = pDesc->mHwnd;

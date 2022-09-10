@@ -2,6 +2,7 @@
 #include "AObject.h"
 #include "GameWindow.h"
 #include "Graphics.h"
+#include "Scene.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
@@ -11,7 +12,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Draw(TheAftermath::Device *pDevice) {
+void Draw(TheAftermath::Scene *pScene) {
+    pScene->Update();
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd) {
@@ -31,8 +33,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     deviceDesc.mHwnd = gamewindow->GetHWND();
     auto device = TheAftermath::CreateDevice(&deviceDesc);
 
-    gamewindow->Run(Draw, device);
+    TheAftermath::SceneDesc sceneDesc;
+    sceneDesc.pDevice = device;
+    sceneDesc.mWidth = 800;
+    sceneDesc.mHeight = 600;
+    auto scene = TheAftermath::CreateScene(&sceneDesc);
 
+    gamewindow->Run(Draw, scene);
+
+    TheAftermath::RemoveObject(scene);
     TheAftermath::RemoveObject(device);
     TheAftermath::RemoveObject(gamewindow);
     return 0;
