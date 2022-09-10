@@ -36,7 +36,7 @@ namespace TheAftermath {
 		}
 
 		~AScene() {
-			bgfx_destroy_frame_buffer(mGBufferFBOHandle);
+			//bgfx_destroy_frame_buffer(mGBufferFBOHandle);
 		}
 
 		void Release() {
