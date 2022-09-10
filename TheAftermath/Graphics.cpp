@@ -10,7 +10,7 @@ namespace TheAftermath {
 			bgfx_init_ctor(&init);
 #ifdef _DEBUG
 			init.debug = true;
-#endif // _DEBUG
+#endif
 			init.type = BGFX_RENDERER_TYPE_DIRECT3D12;
 			init.vendorId = BGFX_PCI_ID_NONE;
 			init.platformData.nwh = pDesc->mHwnd;
