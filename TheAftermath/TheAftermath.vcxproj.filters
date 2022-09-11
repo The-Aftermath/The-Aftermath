@@ -13,15 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\Shader">
-      <UniqueIdentifier>{03a2b2a0-bead-4f19-9245-04c11e60f520}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shader\common">
-      <UniqueIdentifier>{bcdc56b3-007c-4261-9e87-df79db673d86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shader\gbuffer">
-      <UniqueIdentifier>{a3d0ddc6-d3a9-4996-8c9c-0b312f047fe1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -53,16 +44,5 @@
     <ClInclude Include="_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shader\common\common.sh">
-      <Filter>Resource Files\Shader\common</Filter>
-    </None>
-    <None Include="Shader\common\shaderlib.sh">
-      <Filter>Resource Files\Shader\common</Filter>
-    </None>
-    <None Include="Shader\common\bgfx_shader.sh">
-      <Filter>Resource Files\Shader\common</Filter>
-    </None>
   </ItemGroup>
 </Project>

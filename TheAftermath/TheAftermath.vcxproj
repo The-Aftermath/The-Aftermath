@@ -100,11 +100,6 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="_internal.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Shader\common\bgfx_shader.sh" />
-    <None Include="Shader\common\common.sh" />
-    <None Include="Shader\common\shaderlib.sh" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
