@@ -22,6 +22,9 @@
     <Filter Include="Resource Files\Shader\gbuffer">
       <UniqueIdentifier>{a3d0ddc6-d3a9-4996-8c9c-0b312f047fe1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\ShaderBin">
+      <UniqueIdentifier>{6e51db57-d7cd-4f26-bc12-54d3a6a34d15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
