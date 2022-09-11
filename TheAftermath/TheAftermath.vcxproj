@@ -102,6 +102,9 @@
   <ItemGroup>
     <None Include="Shader\common\common.sh" />
     <None Include="Shader\common\shaderlib.sh" />
+    <None Include="Shader\gbuffer.def.sc" />
+    <None Include="Shader\gbuffer_fs.sc" />
+    <None Include="Shader\gbuffer_vs.sc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

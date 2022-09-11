@@ -55,5 +55,14 @@
     <None Include="Shader\common\shaderlib.sh">
       <Filter>Resource Files\Shader\common</Filter>
     </None>
+    <None Include="Shader\gbuffer.def.sc">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="Shader\gbuffer_fs.sc">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
+    <None Include="Shader\gbuffer_vs.sc">
+      <Filter>Resource Files\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
