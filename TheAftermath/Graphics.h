@@ -17,6 +17,4 @@ namespace TheAftermath {
 	};
 
 	Device* CreateDevice(DeviceDesc* pDesc);
-
-	uint16_t LoadProgram(const char* _vsName, const char* _fsName);
 }
