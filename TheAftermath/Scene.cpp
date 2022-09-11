@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include <dxgi1_6.h>
+
 namespace TheAftermath {
 	struct AScene : public Scene {
 		AScene(SceneDesc* pDesc) {
@@ -26,6 +28,15 @@ namespace TheAftermath {
 
 		uint32_t mWidth;
 		uint32_t mHeight;
+
+		ID3D12CommandQueue* pGraphicsQueue;
+		ID3D12CommandQueue* pCopyQueue;
+		ID3D12CommandQueue* pComputeQueue;
+		IDXGISwapChain4* pSwapChain;
+
+		UINT64 mFenceValue;
+		ID3D12Fence* pFence;
+		HANDLE mFenceEvent;
 
 	};
 
