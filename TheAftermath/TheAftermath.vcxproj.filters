@@ -64,5 +64,14 @@
     <None Include="Shader\common\bgfx_shader.sh">
       <Filter>Resource Files\Shader\common</Filter>
     </None>
+    <None Include="Shader\gbuffer\gbuffer_fs.sc">
+      <Filter>Resource Files\Shader\gbuffer</Filter>
+    </None>
+    <None Include="Shader\gbuffer\gbuffer_vs.sc">
+      <Filter>Resource Files\Shader\gbuffer</Filter>
+    </None>
+    <None Include="Shader\gbuffer\varying.def.sc">
+      <Filter>Resource Files\Shader\gbuffer</Filter>
+    </None>
   </ItemGroup>
 </Project>

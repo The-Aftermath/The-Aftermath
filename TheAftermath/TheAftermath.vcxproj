@@ -104,6 +104,9 @@
     <None Include="Shader\common\bgfx_shader.sh" />
     <None Include="Shader\common\common.sh" />
     <None Include="Shader\common\shaderlib.sh" />
+    <None Include="Shader\gbuffer\gbuffer_fs.sc" />
+    <None Include="Shader\gbuffer\gbuffer_vs.sc" />
+    <None Include="Shader\gbuffer\varying.def.sc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
