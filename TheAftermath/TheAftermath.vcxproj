@@ -98,6 +98,7 @@
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\common\bgfx_shader.sh" />
