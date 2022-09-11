@@ -55,7 +55,7 @@
     <None Include="Shader\common\shaderlib.sh">
       <Filter>Resource Files\Shader\common</Filter>
     </None>
-    <None Include="Shader\gbuffer.def.sc">
+    <None Include="Shader\varying.def.sc">
       <Filter>Resource Files\Shader</Filter>
     </None>
     <None Include="Shader\gbuffer_fs.sc">
