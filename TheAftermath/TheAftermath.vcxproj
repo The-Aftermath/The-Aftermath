@@ -100,9 +100,10 @@
     <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shader\common\bgfx_shader.sh" />
     <None Include="Shader\common\common.sh" />
     <None Include="Shader\common\shaderlib.sh" />
-    <None Include="Shader\varying.def.sc" />
+    <None Include="Shader\gbuffer.def.sc" />
     <None Include="Shader\gbuffer_fs.sc" />
     <None Include="Shader\gbuffer_vs.sc" />
   </ItemGroup>
