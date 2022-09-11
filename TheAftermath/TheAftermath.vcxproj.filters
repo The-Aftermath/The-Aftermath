@@ -76,5 +76,11 @@
     <None Include="Shader\gbuffer\varying.def.sc">
       <Filter>Resource Files\Shader\gbuffer</Filter>
     </None>
+    <None Include="ShaderBin\gbuffer_fs.bin">
+      <Filter>Resource Files\ShaderBin</Filter>
+    </None>
+    <None Include="ShaderBin\gbuffer_vs.bin">
+      <Filter>Resource Files\ShaderBin</Filter>
+    </None>
   </ItemGroup>
 </Project>

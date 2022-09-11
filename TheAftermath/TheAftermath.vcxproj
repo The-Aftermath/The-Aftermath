@@ -60,7 +60,8 @@
       <AdditionalDependencies>bgfx-shared-libDebug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)ThirdParty\lib\*.dll $(OutDir) /y</Command>
+      <Command>xcopy $(SolutionDir)ThirdParty\lib\*.dll $(OutDir) /y
+xcopy ShaderBin $(OutDir)ShaderBin\ /s /e /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,7 +85,8 @@
       <AdditionalDependencies>bgfx-shared-libRelease.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)ThirdParty\lib\*.dll $(OutDir) /y</Command>
+      <Command>xcopy $(SolutionDir)ThirdParty\lib\*.dll $(OutDir) /y
+xcopy ShaderBin $(OutDir)ShaderBin\ /s /e /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -101,6 +103,8 @@
     <ClInclude Include="_internal.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ShaderBin\gbuffer_fs.bin" />
+    <None Include="ShaderBin\gbuffer_vs.bin" />
     <None Include="Shader\common\bgfx_shader.sh" />
     <None Include="Shader\common\common.sh" />
     <None Include="Shader\common\shaderlib.sh" />
