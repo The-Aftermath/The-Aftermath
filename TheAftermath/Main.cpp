@@ -3,6 +3,7 @@
 #include "GameWindow.h"
 #include "Graphics.h"
 #include "Scene.h"
+#include "_internal.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_DESTROY) {
@@ -13,6 +14,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 }
 
 void Draw(TheAftermath::Scene *pScene) {
+
     pScene->Update();
 }
 
