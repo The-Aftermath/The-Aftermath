@@ -1,0 +1,4 @@
+[submodule "3rdparty/nvrhi"]
+	path = 3rdparty/nvrhi
+	url = https://github.com/NVIDIAGameWorks/nvrhi
+	branch = main
