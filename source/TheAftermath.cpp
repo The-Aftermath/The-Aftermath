@@ -1,6 +1,6 @@
 #include <Windows.h>
 
-#include "GameContext.h"
+#include "GameScene.h"
 #include "Device.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -31,12 +31,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	auto stype = WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;
 	RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
 	AdjustWindowRect(&rc, stype, FALSE);
-	auto hwnd = CreateWindowExW(0, L"The Aftermath", L"The Aftermath", stype, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance, NULL);
+	auto hwnd = CreateWindowExW(0, L"The Aftermath", L"The Aftermath", stype, 40, 40, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance, NULL);
 
 	Device device(hwnd, w, h);
 
 	::ShowWindow(hwnd, nShowCmd);
-
 	MSG msg = {};
 	while (WM_QUIT != msg.message)
 	{

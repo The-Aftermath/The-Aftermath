@@ -1,7 +1,7 @@
 add_executable(TheAftermath WIN32 
 	"TheAftermath.cpp" 
-	"GameContext.cpp" 
-	"GameContext.h"
+	"GameScene.cpp" 
+	"GameScene.h"
 	"Device.cpp"
 	"Device.h"
 )
