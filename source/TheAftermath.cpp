@@ -2,6 +2,7 @@
 
 #include "GameScene.h"
 #include "Device.h"
+#include "GameRenderer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	if (message == WM_DESTROY) {
@@ -33,7 +34,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	AdjustWindowRect(&rc, stype, FALSE);
 	auto hwnd = CreateWindowExW(0, L"The Aftermath", L"The Aftermath", stype, 40, 40, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance, NULL);
 
-	Device device(hwnd, w, h);
+	GameRenderer renderer;
+	renderer.init(hwnd, w, h);
 
 	::ShowWindow(hwnd, nShowCmd);
 	MSG msg = {};
@@ -46,9 +48,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		}
 		else
 		{
-			device.present();
+			renderer.update();
 		}
 	}
+
+	renderer.destroy();
 
 	return 0;
 }
