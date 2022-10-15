@@ -104,23 +104,3 @@ Device::Device(HWND hwnd, UINT w, UINT h) {
 	_wait(mComputeFenceValue, pComputeQueue, pComputeFence, mComputeFenceEvent);
 }
 
-Device::~Device() {
-	mDeviceHandle->waitForIdle();
-	mDeviceHandle->runGarbageCollection();
-
-	_wait(mGFenceValue, pGraphicsQueue, pGFence, mGFenceEvent);
-	_wait(mCopyFenceValue, pCopyQueue, pCopyFence, mCopyFenceEvent);
-	_wait(mComputeFenceValue, pComputeQueue, pComputeFence, mComputeFenceEvent);
-
-	CloseHandle(mComputeFenceEvent);
-	pComputeFence->Release();
-	CloseHandle(mCopyFenceEvent);
-	pCopyFence->Release();
-	CloseHandle(mGFenceEvent);
-	pGFence->Release();
-	pSwapChain->Release();
-	pComputeQueue->Release();
-	pCopyQueue->Release();
-	pGraphicsQueue->Release();
-	pDevice->Release();
-}
