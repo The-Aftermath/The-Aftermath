@@ -11,4 +11,8 @@ class GameScene {
 public:
 	GameScene(nvrhi::DeviceHandle device);
 	~GameScene();
+
+	void loadStaticModel() {
+
+	}
 };
