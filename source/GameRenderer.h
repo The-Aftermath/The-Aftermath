@@ -32,8 +32,4 @@ public:
 		delete pDevice;
 	}
 
-	void loadStaticModel() {
-
-	}
-
 };

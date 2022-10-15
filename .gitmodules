@@ -2,6 +2,3 @@
 	path = 3rdparty/nvrhi
 	url = https://github.com/NVIDIAGameWorks/nvrhi
 	branch = main
-[submodule "3rdparty/eigen"]
-	path = 3rdparty/eigen
-	url = https://gitlab.com/libeigen/eigen
