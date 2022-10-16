@@ -10,5 +10,6 @@ set(NVRHI_WITH_VULKAN OFF CACHE BOOL "" FORCE)
 set(NVRHI_WITH_SHADER_COMPILER OFF CACHE BOOL "" FORCE)
 
 add_subdirectory("3rdparty/nvrhi")
-include_directories("3rdparty/cgltf")
+add_subdirectory("3rdparty/assimp")
+add_subdirectory("tool/bake_model")
 add_subdirectory("source")
