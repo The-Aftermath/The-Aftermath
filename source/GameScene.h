@@ -1,12 +1,9 @@
 #pragma once
 
-#include "nvrhi/nvrhi.h"
-#include <vector>
 class GameScene {
-	//std::vector<Mesh> mesh;
-	nvrhi::DeviceHandle mDevice;
+
 public:
-	GameScene(nvrhi::DeviceHandle device);
+	GameScene();
 	~GameScene();
 
 	GameScene(const GameScene&) = delete;

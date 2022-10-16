@@ -2,8 +2,8 @@
 #define CGLTF_IMPLEMENTATION
 #include "cgltf.h"
 
-GameScene::GameScene(nvrhi::DeviceHandle device) {
-	mDevice = device;
+GameScene::GameScene() {
+
 }
 
 GameScene::~GameScene() {
