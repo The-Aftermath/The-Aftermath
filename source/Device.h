@@ -61,6 +61,7 @@ public:
 	~Device() {
 		if (pDevice) {
 			_destroy();
+			pDevice = nullptr;
 		}
 	}
 

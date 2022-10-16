@@ -34,8 +34,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	AdjustWindowRect(&rc, stype, FALSE);
 	auto hwnd = CreateWindowExW(0, L"The Aftermath", L"The Aftermath", stype, 40, 40, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, wcex.hInstance, NULL);
 
-	GameRenderer renderer;
-	renderer.init(hwnd, w, h);
+	//GameRenderer renderer;
+	//renderer.init(hwnd, w, h);
+	Device device(hwnd, w, h);
 
 	::ShowWindow(hwnd, nShowCmd);
 	MSG msg = {};
@@ -48,11 +49,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		}
 		else
 		{
-			renderer.update();
+			//renderer.update();
+			device.present();
 		}
 	}
 
-	renderer.destroy();
+	//renderer.destroy();
 
 	return 0;
 }
