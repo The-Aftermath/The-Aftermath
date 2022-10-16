@@ -9,5 +9,6 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(NVRHI_WITH_VULKAN OFF CACHE BOOL "" FORCE)
 set(NVRHI_WITH_SHADER_COMPILER OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(3rdparty/nvrhi)
-add_subdirectory(source)
+add_subdirectory("3rdparty/nvrhi")
+include_directories("3rdparty/cgltf")
+add_subdirectory("source")

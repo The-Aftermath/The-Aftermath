@@ -4,9 +4,8 @@ add_executable(TheAftermath WIN32
 	"GameScene.h"
 	"Device.cpp"
 	"Device.h"
-	"Mesh.h"
-	"GameRenderer.h"
-	"AABB.h"
+
 )
 target_compile_definitions(TheAftermath PRIVATE UNICODE _UNICODE NOMINMAX)
 target_link_libraries(TheAftermath PRIVATE nvrhi nvrhi_d3d12 d3d12 dxgi dxguid)
+target_include_directories(TheAftermath PRIVATE )
