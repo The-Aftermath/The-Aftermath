@@ -8,5 +8,4 @@ add_executable(TheAftermath WIN32
 )
 target_compile_definitions(TheAftermath PRIVATE UNICODE _UNICODE NOMINMAX)
 target_link_libraries(TheAftermath PRIVATE nvrhi nvrhi_d3d12 d3d12 dxgi dxguid)
-
-target_include_directories(TheAftermath PRIVATE "3rdparty/cgltf")
+target_include_directories(TheAftermath PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/cgltf")

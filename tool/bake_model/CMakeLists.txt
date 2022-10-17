@@ -5,3 +5,5 @@ add_custom_command (TARGET BakeModel POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:assimp> $<TARGET_FILE_DIR:BakeModel>
 )
+
+target_include_directories(BakeModel PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/cgltf")
