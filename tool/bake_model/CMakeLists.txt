@@ -7,3 +7,4 @@ add_custom_command (TARGET BakeModel POST_BUILD
 )
 
 target_include_directories(BakeModel PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/cgltf")
+target_include_directories(BakeModel PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/json")
