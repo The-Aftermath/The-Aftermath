@@ -3,6 +3,10 @@
 #include "assimp/scene.h"
 #include "assimp/material.h"
 #include "json.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include <iostream>
 #include <vector>
 #include <string>
