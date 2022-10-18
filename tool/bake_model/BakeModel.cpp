@@ -2,6 +2,9 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "assimp/material.h"
+#include "assimp/GltfMaterial.h"
+#include "assimp/types.h"
+#include "assimp/mesh.h"
 #include "json.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -12,6 +15,10 @@
 #include <string>
 #include <cstdint>
 #include <filesystem>
+#include <winrt/Windows.Foundation.h>
+
+using namespace winrt;
+using namespace Windows::Foundation;
 
 struct Vertex {
 	float Position[3]{};
@@ -21,9 +28,6 @@ struct Vertex {
 
 struct Texture {
 	std::string FileName;
-	float BaseColorFactor[3]{};
-	float MetallicRoughnessFactor[2]{};
-	float NormalFactor[3]{};
 };
 
 struct Mesh {
@@ -35,7 +39,7 @@ struct Mesh {
 };
 
 
-void process(std::vector<Mesh> &meshes,const aiScene* scene) {
+void process(const std::filesystem::path& modelPath, std::vector<Mesh>& meshes, const aiScene* scene) {
 	uint32_t meshCount = scene->mNumMeshes;
 	for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
 		Mesh mesh;
@@ -70,19 +74,37 @@ void process(std::vector<Mesh> &meshes,const aiScene* scene) {
 		}
 
 		aiMaterial* material = scene->mMaterials[scene->mMeshes[meshIndex]->mMaterialIndex];
+		auto parent = modelPath.parent_path();
+		auto outputPathName = modelPath.stem();
+		if (aiString mrTexture; material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &mrTexture) == aiReturn_SUCCESS) {
+			//my_mesh.MetallicRoughness.FileName = mrTexture.C_Str();
+			auto realTexPath = parent / mrTexture.C_Str();
+			std::filesystem::copy(realTexPath, outputPathName, std::filesystem::copy_options::skip_existing);
+		}
+		else {
+			mrTexture;
+		}
 	}
 
 }
 
 int main(int argc, char** argv) {
-	std::filesystem::path outputPath{ argv[1] };
-	auto outputPathFilename = outputPath.filename();
-	std::filesystem::create_directory(outputPathFilename);
+
+	init_apartment();
+
+	std::filesystem::path modelPath{ "C:\\Users\\42937\\Documents\\GitHub\\glTF-Sample-Models\\2.0\\Box With Spaces\\glTF\\Box With Spaces.gltf" };
+	auto outputPathName= modelPath.stem();
+	std::filesystem::create_directory(outputPathName);
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(argv[1], aiProcess_Triangulate | aiProcess_GenNormals);
+	const aiScene* scene = importer.ReadFile(modelPath.string(), aiProcess_Triangulate | aiProcess_GenNormals);
 	std::vector<Mesh> meshes;
-	process(meshes, scene);
+	try {
+		process(modelPath, meshes, scene);
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cout << e.what() << std::endl;
+	}
 
 	nlohmann::json gltfData;
 	gltfData["asset"] = {
