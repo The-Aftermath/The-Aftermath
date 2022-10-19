@@ -15,10 +15,7 @@
 #include <string>
 #include <cstdint>
 #include <filesystem>
-#include <winrt/Windows.Foundation.h>
 
-using namespace winrt;
-using namespace Windows::Foundation;
 
 struct Vertex {
 	float Position[3]{};
@@ -38,8 +35,7 @@ struct Mesh {
 	Texture Normal;
 };
 
-
-void process(const std::filesystem::path& modelPath, std::vector<Mesh>& meshes, const aiScene* scene) {
+void processVertexAndIndex(std::vector<Mesh>& meshes, const aiScene* scene) {
 	uint32_t meshCount = scene->mNumMeshes;
 	for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
 		Mesh mesh;
@@ -65,47 +61,46 @@ void process(const std::filesystem::path& modelPath, std::vector<Mesh>& meshes, 
 			mesh.Vertices.push_back(vertex);
 		}
 
-		for (unsigned int i = 0; i < scene->mMeshes[meshIndex]->mNumFaces; i++)
+		for (unsigned int i = 0; i < scene->mMeshes[meshIndex]->mNumFaces; ++i)
 		{
 			aiFace face = scene->mMeshes[meshIndex]->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++) {
+			for (unsigned int j = 0; j < face.mNumIndices; ++j) {
 				mesh.Indices.push_back(face.mIndices[j]);
 			}
 		}
 
-		aiMaterial* material = scene->mMaterials[scene->mMeshes[meshIndex]->mMaterialIndex];
-		auto parent = modelPath.parent_path();
-		auto outputPathName = modelPath.stem();
-		if (aiString mrTexture; material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &mrTexture) == aiReturn_SUCCESS) {
-			//my_mesh.MetallicRoughness.FileName = mrTexture.C_Str();
-			auto realTexPath = parent / mrTexture.C_Str();
-			std::filesystem::copy(realTexPath, outputPathName, std::filesystem::copy_options::skip_existing);
-		}
-		else {
-			mrTexture;
-		}
+		meshes.push_back(mesh);
 	}
+}
 
+void processGLTFMaterial(Mesh& mesh, const aiMaterial* material) {
+	if (aiString mrTexture; material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &mrTexture) == aiReturn_SUCCESS) {
+		
+	}
+}
+
+void processMatrial(std::vector<Mesh>& meshes, const aiScene* scene,const std::filesystem::path &modelPath) {
+	auto modelType = modelPath.extension();
+	uint32_t meshCount = scene->mNumMeshes;
+	for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
+		const aiMaterial* material = scene->mMaterials[scene->mMeshes[meshIndex]->mMaterialIndex];
+		if (modelType == ".gltf" || modelType == ".glb") {
+			processGLTFMaterial(meshes[meshIndex], material);
+		}
+
+	}
 }
 
 int main(int argc, char** argv) {
-
-	init_apartment();
-
 	std::filesystem::path modelPath{ "C:\\Users\\42937\\Documents\\GitHub\\glTF-Sample-Models\\2.0\\Box With Spaces\\glTF\\Box With Spaces.gltf" };
-	auto outputPathName= modelPath.stem();
-	std::filesystem::create_directory(outputPathName);
+	auto outputPath = modelPath.stem();
+	std::filesystem::create_directory(outputPath);
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(modelPath.string(), aiProcess_Triangulate | aiProcess_GenNormals);
 	std::vector<Mesh> meshes;
-	try {
-		process(modelPath, meshes, scene);
-	}
-	catch (const std::filesystem::filesystem_error& e) {
-		std::cout << e.what() << std::endl;
-	}
-
+	processVertexAndIndex(meshes, scene);
+	processMatrial(meshes, scene, modelPath);
 	nlohmann::json gltfData;
 	gltfData["asset"] = {
 		{ "version" , "2.0" },
