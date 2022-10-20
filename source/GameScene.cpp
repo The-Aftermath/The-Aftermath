@@ -2,7 +2,7 @@
 #define CGLTF_IMPLEMENTATION
 #include "cgltf.h"
 
-GameScene::GameScene(UINT w, UINT h) {
+GameScene::GameScene(uint32_t w, uint32_t h) {
 	m = DirectX::XMFLOAT4X4(
 		1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,

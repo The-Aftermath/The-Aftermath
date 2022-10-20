@@ -69,7 +69,7 @@ struct DefaultMeeeageCallback : public nvrhi::IMessageCallback {
 	}
 };
 
-Device::Device(HWND hwnd, UINT w, UINT h) {
+Device::Device(HWND hwnd, uint32_t w, uint32_t h) {
 	pDevice = _getDevice();
 	pGraphicsQueue = _getQueue(pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
 	pCopyQueue = _getQueue(pDevice, D3D12_COMMAND_LIST_TYPE_COPY);

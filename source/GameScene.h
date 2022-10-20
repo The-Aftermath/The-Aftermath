@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <vector>
 #include <DirectXMath.h>
+#include <cstdint>
 
 class GameScene {
 	std::vector<MeshData> mMesh;
@@ -13,7 +14,7 @@ class GameScene {
 	DirectX::XMFLOAT3 focus;
 	DirectX::XMFLOAT3 up;
 public:
-	GameScene(UINT w, UINT h);
+	GameScene(uint32_t w, uint32_t h);
 	~GameScene();
 
 	GameScene(const GameScene&) = delete;

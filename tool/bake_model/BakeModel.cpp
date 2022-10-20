@@ -73,26 +73,25 @@ void processVertexAndIndex(std::vector<Mesh>& meshes, const aiScene* scene) {
 	}
 }
 
-void processGLTFMaterial(Mesh& mesh, const aiMaterial* material) {
-	if (aiString mrTexture; material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &mrTexture) == aiReturn_SUCCESS) {
-		
-	}
+//void processGLTFMaterial(Mesh& mesh, const aiMaterial* material) {
+//	if (aiString mrTexture; material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &mrTexture) == aiReturn_SUCCESS) {
+//
+//	}
+//	else if (aiString sgTexture; material->GetTexture(aiTextureType_SPECULAR, 0, &sgTexture) == aiReturn_SUCCESS) {
+//
+//	}
+//}
+
+void addDefaultMaterial(Mesh& mesh, const std::filesystem::path& modelPath) {
+	auto outputPath = modelPath.stem();
 }
 
-void processMatrial(std::vector<Mesh>& meshes, const aiScene* scene,const std::filesystem::path &modelPath) {
-	auto modelType = modelPath.extension();
-	uint32_t meshCount = scene->mNumMeshes;
-	for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex) {
-		const aiMaterial* material = scene->mMaterials[scene->mMeshes[meshIndex]->mMaterialIndex];
-		if (modelType == ".gltf" || modelType == ".glb") {
-			processGLTFMaterial(meshes[meshIndex], material);
-		}
-
-	}
+void processMatrial(std::vector<Mesh>& meshes, const aiScene* scene, const std::filesystem::path& modelPath) {
+	
 }
 
 int main(int argc, char** argv) {
-	std::filesystem::path modelPath{ "C:\\Users\\42937\\Documents\\GitHub\\glTF-Sample-Models\\2.0\\Box With Spaces\\glTF\\Box With Spaces.gltf" };
+	std::filesystem::path modelPath{ "C:\\Users\\42937\\Documents\\GitHub\\glTF-Sample-Models\\2.0\\Box\\glTF\\Box.gltf" };
 	auto outputPath = modelPath.stem();
 	std::filesystem::create_directory(outputPath);
 
@@ -101,10 +100,11 @@ int main(int argc, char** argv) {
 	std::vector<Mesh> meshes;
 	processVertexAndIndex(meshes, scene);
 	processMatrial(meshes, scene, modelPath);
+
 	nlohmann::json gltfData;
 	gltfData["asset"] = {
 		{ "version" , "2.0" },
-		{ "generator" , "TheAftermath" }
+		{ "generator" , "The Aftermath" }
 	};
 	gltfData["scene"] = 0;
 	std::cout << gltfData.dump();

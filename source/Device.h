@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <wrl.h>
+#include <cstdint>
 class Device {
 	ID3D12Device* pDevice;
 	IDXGISwapChain4* pSwapChain;
@@ -57,7 +58,7 @@ class Device {
 	}
 
 public:
-	Device(HWND hwnd, UINT w, UINT h);
+	Device(HWND hwnd, uint32_t w, uint32_t h);
 	~Device() {
 		if (pDevice) {
 			_destroy();
